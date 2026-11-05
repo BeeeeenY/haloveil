@@ -1,0 +1,21 @@
+HaloVeil — macOS screen saver adaptation
+
+Modified from HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT).
+Original source: https://github.com/Ryder191/haloflux
+
+Required Notice: Copyright (c) 2026 Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT) - https://github.com/Ryder191/haloflux
+Required Notice: Noncommercial use only. Any commercial use is strictly prohibited. No commercial licenses are offered.
+
+Copyright (c) 2026 HaloVeil contributors, for the macOS adaptation and
+packaging changes only. These changes are distributed under the terms in
+LICENSE. Upstream code, visual design, and required notices remain subject
+to their original terms. This project does not claim authorship of the
+original HALOFLUX visualization and does not grant an MIT license.
+
+Changes include the native ScreenSaverView/WKWebView host, silent offline
+playback, display-scoped instance ownership, lifecycle cleanup, startup
+preparation, render batching, a bounded canvas budget, build/release tools,
+and documentation. The displayed telemetry is simulated.
+
+The upstream audio asset is not included in this distribution.
+HaloVeil is an independent adaptation, not an official upstream release.

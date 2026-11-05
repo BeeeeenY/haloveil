@@ -1,0 +1,18 @@
+.DS_Store
+._*
+build/
+.local/
+*.dSYM/
+__pycache__/
+*.py[cod]
+.venv/
+.idea/
+.vscode/
+*.saver/
+*.app/
+
+# downloads/*.zip is intentionally tracked for a working download link
+# immediately after the repository is uploaded to GitHub.
+
+# Ignore locally extracted release archives.
+downloads/HaloVeil-*/

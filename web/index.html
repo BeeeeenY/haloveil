@@ -1,0 +1,171 @@
+<!doctype html>
+<!--
+  HALOFLUX - Copyright (c) 2026 Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT). All rights reserved.
+
+  Source code and audiovisual design are original works protected by copyright.
+  Licensed under the PolyForm Noncommercial License 1.0.0 (see LICENSE).
+  Noncommercial use only. ANY COMMERCIAL USE IS STRICTLY PROHIBITED.
+  Keep this notice and credit "HALOFLUX by Ryder191" when sharing or remixing.
+  Republishing on the Steam Workshop or other wallpaper platforms: credit the author
+  (Ryder191 / RYDER CODE / Ms MAIKEBAIs CAT) and the source repository (Ryder191/haloflux
+  on GitHub) in the item description; no monetization of any kind. See LICENSE.
+
+  源代码与视觉设计均为原创作品，受著作权保护。按 PolyForm Noncommercial 1.0.0 授权。
+  仅限非商业用途，严格禁止任何商业用途。转载或二创须保留本声明并注明出处。
+  转发到 Steam 创意工坊等壁纸平台：须在简介中注明作者和来源仓库（GitHub 上的 Ryder191/haloflux），
+  严禁任何形式的盈利，详见 LICENSE。
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HaloVeil · macOS Screen Saver</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<style>
+:root{
+  --bg:#08090b; --panel:#0e0f12; --line:#25282e; --line2:#3a3e46;
+  --text:#cfd2d8; --dim:#6b6f78; --faint:#3f434a; --white:#f4f5f7;
+  --pink:#f0a6c6; --teal:#98e0cf;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-monospace,"Cascadia Mono","SF Mono",Consolas,"Liberation Mono",monospace;overflow:hidden}
+.app{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh}
+
+/* ---------- header ---------- */
+header{display:grid;grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,1fr));align-items:end;border-bottom:1px solid var(--line);padding:10px 18px 0;background:#0a0b0d}
+.brand h1{white-space:nowrap;margin:0;font-size:21px;font-weight:800;letter-spacing:1.5px;color:var(--white)}
+.brand p{margin:3px 0 9px;font-size:9px;color:var(--dim);letter-spacing:1.2px}
+.kpi{padding:0 10px 9px;position:relative}
+.kpi .k{font-size:9px;color:var(--dim);letter-spacing:1.2px}
+.kpi .v{font-size:14px;font-weight:800;color:var(--white);font-variant-numeric:tabular-nums}
+.kpi .v.pink{color:var(--pink)}
+.kpi .seg{position:absolute;left:10px;right:0;bottom:-1px;height:2px;background:var(--line)}
+.kpi .seg i{display:block;height:100%;background:var(--text);width:0;transition:width 1.2s ease}
+
+/* ---------- stage ---------- */
+.stage{position:relative;min-height:0;overflow:hidden}
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),
+             radial-gradient(ellipse at 40% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
+.ov{position:absolute;font-size:9px;letter-spacing:1px;color:var(--text);pointer-events:none;z-index:2}
+.chk{left:0;top:0;will-change:transform;background:rgba(8,9,11,.85);border:1px solid var(--line2);padding:5px 8px;transition:opacity .4s}
+.chk b{display:block;font-size:8px;color:var(--dim);font-weight:600;margin-bottom:3px}
+.chk span{font-size:12px;color:var(--white);font-weight:600;white-space:nowrap}
+.status{right:16px;bottom:12px;text-align:right}
+.status .big{font-size:11px;color:var(--white);font-weight:800}
+.status .sm{color:var(--dim);font-size:8px;margin-top:2px}
+
+/* ---------- panels ---------- */
+.panels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:8px 12px 12px;border-top:1px solid var(--line);background:#0a0b0d}
+.p{border:1px solid var(--line);background:var(--panel);padding:7px 10px 6px;height:clamp(118px,17vh,168px);display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.p h3{margin:0 0 5px;font-size:9px;font-weight:800;letter-spacing:1.3px;color:var(--white);white-space:nowrap}
+.p .cap{margin-top:auto;font-size:8px;color:var(--dim);padding-top:3px;white-space:nowrap;overflow:hidden}
+.p canvas{width:100%;flex:1;min-height:0;display:block}
+
+.feed{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;font-size:9px;line-height:1.4;overflow:hidden}
+.feed div{white-space:nowrap;color:var(--dim)}
+.feed div:last-child{color:var(--white);font-weight:600}
+.n{color:var(--faint);margin-right:8px}
+.vb{display:inline-block;width:42px;font-weight:800}
+.vb.build{color:var(--pink)} .vb.check{color:var(--text)} .vb.read{color:var(--teal)} .vb.qa{color:var(--white)}
+
+.btns{display:flex;gap:4px;margin-top:4px}
+.btns span{flex:1;font-size:8px;border:1px solid var(--line2);padding:1px 5px;color:var(--dim);transition:all .3s}
+.btns span.on{background:#cfd2d8;color:#000;border-color:#cfd2d8}
+
+.code{flex:1;min-height:0;font-size:9px;line-height:1.45;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.code div{white-space:nowrap}
+.code .ln{color:var(--faint);margin-right:10px}
+.code .fn{color:var(--white);font-weight:800}
+.code .op{color:var(--dim)}
+.caret{display:inline-block;width:6px;height:10px;background:var(--white);vertical-align:-1px;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+
+.routes{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:3px 6px;font-size:8px;align-content:start}
+.routes .h{color:var(--dim);font-weight:800;letter-spacing:1px}
+.routes .nm{color:var(--text);white-space:nowrap;overflow:hidden}
+.chip{display:inline-block;padding:0 4px;border:1px solid var(--line2);border-radius:2px;color:var(--faint);line-height:11px;transition:all .3s}
+.chip.on{background:#d6d8dd;color:#000;border-color:#d6d8dd}
+.chip.done{background:#2b2e34;color:var(--text);border-color:#2b2e34}
+.chip.pk{background:rgba(240,166,198,.25);color:var(--pink);border-color:rgba(240,166,198,.5)}
+
+.agents{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;font-size:8px;align-content:start}
+.ag{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.ag .id{color:var(--faint)} .ag .rl{width:36px;color:var(--text);font-weight:600}
+.ag .cells{display:flex;gap:1px}
+.ag .cells i{width:7px;height:7px;background:#1d1f24}
+.ag .st{color:var(--dim);overflow:hidden}
+.ag .st.w{color:var(--white)}
+
+@media (max-width:1000px){
+  html,body{overflow:auto}
+  .app{height:auto}
+  .stage{height:62vh}
+  header{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 0}
+  .brand{grid-column:1/-1}
+  .panels{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .p{height:150px}
+}
+@media (max-width:520px){
+  header{padding:10px 16px 0}
+  .panels{grid-template-columns:minmax(0,1fr);padding:8px 16px 16px}
+}
+</style>
+<style>
+/* ---- wallpaper build ---- */
+html,body,.stage,.p{cursor:none}
+@media (min-width:1500px){ .brand h1{font-size:24px} .p h3{font-size:10px} .p .cap{font-size:8.5px} }
+@media (min-width:2100px){ .brand h1{font-size:28px;letter-spacing:2.5px} .kpi .v{font-size:17px}
+  .p{height:clamp(150px,19vh,230px)} }
+</style>
+<style>
+/* macOS screen saver: one viewport, no scrolling or interactive controls. */
+html,body{overflow:hidden!important;overscroll-behavior:none;user-select:none}
+.app{height:100vh!important;height:100dvh!important;grid-template-rows:auto minmax(0,1fr) auto}
+.stage{height:auto!important;min-height:0}
+header{grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,1fr));gap:0}
+.brand{grid-column:auto}.brand h1{font-size:clamp(13px,1.25vw,24px)}
+.panels{grid-template-columns:repeat(4,minmax(0,1fr));padding:8px 12px 12px;gap:8px}
+.p{height:clamp(96px,16vh,180px)}
+.paused *,.paused *::before,.paused *::after{animation-play-state:paused!important;transition:none!important}
+.noscan .stage::after{background:radial-gradient(ellipse at 40% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><h1>HALOVEIL</h1><p>OFFLINE SYSTEM TELEMETRY · VISUAL DEMO</p></div>
+    <div class="kpi"><div class="k">TASKS</div><div class="v" id="k0">64</div><div class="seg"><i></i></div></div>
+    <div class="kpi"><div class="k">AGENTS</div><div class="v pink" id="k1">12</div><div class="seg"><i></i></div></div>
+    <div class="kpi"><div class="k">METHODS</div><div class="v" id="k2">11</div><div class="seg"><i></i></div></div>
+    <div class="kpi"><div class="k">REF. SCENES</div><div class="v" id="k3">28</div><div class="seg"><i></i></div></div>
+    <div class="kpi"><div class="k">FURTHER REVIEW</div><div class="v" id="k4">4</div><div class="seg"><i></i></div></div>
+  </header>
+
+  <div class="stage" id="stageWrap">
+    <canvas id="stage"></canvas>
+
+    <div class="ov chk" id="chk"><b id="chkK">STABILITY CHECK</b><span id="chkV">CFL = |u| Δt / Δx</span></div>
+    <div class="ov status"><div class="big" id="stBig">7 / 11 METHODS · 4 PENDING</div><div class="sm">independent runs · shared event bus</div></div>
+  </div>
+
+  <section class="panels">
+    <div class="p"><h3>INVESTIGATION FEED</h3><div class="feed" id="feed"></div></div>
+    <div class="p"><h3>ADVECTION / PARTICLE SOLVER</h3><canvas id="cAdv"></canvas>
+      <div class="btns" id="advBtns"><span class="on">ADVECT</span><span>PROJECT</span><span>RENDER</span></div></div>
+    <div class="p"><h3>METHOD WORKSPACE</h3><div class="code" id="code"></div></div>
+    <div class="p"><h3>SHARED SCENE / DIFFERENCE FIELD</h3><canvas id="cDiff"></canvas><div class="cap">same input · local difference · inspect source</div></div>
+    <div class="p"><h3>SOURCE / EXTRACTION ROUTES</h3><div class="routes" id="routes"></div><div class="cap">pages → equations → runnable source</div></div>
+    <div class="p"><h3>VALIDATION / SAMPLE BUFFER</h3><canvas id="cVal"></canvas><div class="cap">illustrative / source check required</div></div>
+    <div class="p"><h3>12 AGENTS / DISPATCH</h3><div class="agents" id="agents"></div><div class="cap">independent jobs / shared event bus</div></div>
+    <div class="p"><h3>METHOD / REFERENCE INDEX</h3><canvas id="cIdx"></canvas><div class="cap">28 scenes / 7 matched / 4 further review</div></div>
+  </section>
+</div>
+
+<script src="version.js"></script>
+<script src="settings.js"></script>
+<script src="runtime.js"></script>
+<script src="animation.js"></script>
+</body>
+</html>
