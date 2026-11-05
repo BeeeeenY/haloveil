@@ -1,6 +1,6 @@
 # HaloVeil · 光幕
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [English / 中文](README.bilingual.md)
+[English](README.md) · [简体中文](README.zh-CN.md) 
 
 一款无声、离线运行的 macOS 屏幕保护程序：旋转数据环、交织光场和动态遥测面板。基于已验收的 HALOFLUX macOS 适配版 1.5.0，保留启动预热与退出清理优化。
 

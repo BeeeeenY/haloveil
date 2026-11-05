@@ -1,6 +1,6 @@
 # HaloVeil
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [English / 中文](README.bilingual.md)
+[English](README.md) · [简体中文](README.zh-CN.md) 
 
 A silent, offline macOS screen saver with a rotating data ring, woven light field, and animated telemetry panels. Built on the startup and lifecycle fixes from the validated HALOFLUX macOS adaptation 1.5.0.
 
