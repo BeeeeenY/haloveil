@@ -4,8 +4,6 @@
 
 一款无声、离线运行的 macOS 屏幕保护程序：旋转数据环、交织光场和动态遥测面板。基于已验收的 HALOFLUX macOS 适配版 1.5.0，保留启动预热与退出清理优化。
 
-**基于 [HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT）](https://github.com/Ryder191/haloflux) 修改，仅限非商业用途。** 原可视化及视觉设计属于原作者，HaloVeil 是独立的 macOS 适配项目。
-
 ![HaloVeil 屏保预览](assets/preview.png)
 
 ## 下载与安装
@@ -55,6 +53,8 @@ python3 tools/package.py
 [开发说明](docs/DEVELOPMENT.md) · [测试范围与边界](docs/TESTING.md) · [GitHub 发布说明](docs/RELEASING.md) · [更新记录](CHANGELOG.md)
 
 ## 许可与致谢
+
+**基于 [HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT）](https://github.com/Ryder191/haloflux) 修改，仅限非商业用途。** 原可视化及视觉设计属于原作者，HaloVeil 是独立的 macOS 适配项目。
 
 本项目完整保留原作 **[LICENSE](LICENSE)**，包含作者声明、Required Notice 与 PolyForm Noncommercial 1.0.0 条款。使用或转发前请阅读完整许可。**禁止商业使用，本项目不是 MIT 许可。**
 

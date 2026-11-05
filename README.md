@@ -4,8 +4,6 @@
 
 A silent, offline macOS screen saver with a rotating data ring, woven light field, and animated telemetry panels. Built on the startup and lifecycle fixes from the validated HALOFLUX macOS adaptation 1.5.0.
 
-**Modified from [HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)](https://github.com/Ryder191/haloflux). Noncommercial use only.** The original visualization and visual design belong to the upstream author. HaloVeil is an independent macOS adaptation.
-
 ![HaloVeil screen saver](assets/preview.png)
 
 ## Download and install
@@ -55,6 +53,8 @@ The build produces `build/HaloVeil.saver` and `build/HaloVeil Preview.app`. Pack
 [Development guide](docs/DEVELOPMENT.md) · [Test coverage and limits](docs/TESTING.md) · [Publishing a release](docs/RELEASING.md) · [Changelog](CHANGELOG.md)
 
 ## License and credits
+
+**Modified from [HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)](https://github.com/Ryder191/haloflux). Noncommercial use only.** The original visualization and visual design belong to the upstream author. HaloVeil is an independent macOS adaptation.
 
 The original **[LICENSE](LICENSE)** is preserved, including the upstream notices and PolyForm Noncommercial 1.0.0 terms. Read it before using or redistributing the project. **Commercial use is prohibited. This project is not MIT-licensed.**
 
