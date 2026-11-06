@@ -4,7 +4,7 @@
 
 ## Download
 
-Download **[HaloVeil-1.0.0.zip](../downloads/HaloVeil-1.0.0.zip?raw=true)** from this repository. If the project also has a GitHub Release, its asset with the same name is the installable package. GitHub's automatically generated “Source code” ZIP contains the source project instead.
+Download **[HaloVeil-1.0.0.zip](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.0.0.zip)** from this repository. If the project also has a GitHub Release, its asset with the same name is the installable package. GitHub's automatically generated “Source code” ZIP contains the source project instead.
 
 Unzip the package with Archive Utility. Keep the `.saver` bundle intact; do not open its Contents folder to install individual files. Installing the downloaded saver does not require Xcode, Python, a web server, or Wallpaper Engine.
 

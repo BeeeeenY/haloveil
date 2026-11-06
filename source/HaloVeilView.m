@@ -9,6 +9,8 @@
 #import <sys/file.h>
 #import <fcntl.h>
 #import <unistd.h>
+#import <pwd.h>
+#import "AgentStatus.h"
 
 static NSString *const ClaimNotification = @"dev.haloveil.claim-display.v1";
 static NSUInteger ExitGeneration = 0;
@@ -53,6 +55,8 @@ static void Log(NSString *event,NSDictionary *fields) {
 @property(nonatomic) NSUInteger generation;
 @property(nonatomic) NSInteger peakWindowLevel;
 @property(nonatomic) NSTimeInterval claimEpoch,nextAttempt,nextDiagnostics;
+@property(nonatomic) NSTimeInterval nextAgentStatus;
+@property(nonatomic) BOOL agentStatusPending;
 @end
 @implementation HaloVeilView
 - (instancetype)initWithFrame:(NSRect)frame isPreview:(BOOL)preview {
@@ -106,6 +110,31 @@ static void Log(NSString *event,NSDictionary *fields) {
     return YES;
 }
 - (NSNumber *)displayIdentifier{return (self.window.screen?:NSScreen.mainScreen).deviceDescription[@"NSScreenNumber"]?:@0;}
+- (NSURL *)agentStatusURL {
+    // NSHomeDirectory can point at the saver host's container. Use the user's real home.
+    struct passwd *user=getpwuid(getuid());
+    NSString *home=user?[@(user->pw_dir) copy]:NSHomeDirectory();
+    return [NSURL fileURLWithPath:[home stringByAppendingPathComponent:@"Library/Application Support/HaloVeil/agent-status.json"]];
+}
+- (void)refreshAgentStatus {
+    NSTimeInterval now=NSProcessInfo.processInfo.systemUptime;
+    if(!self.pageReady||self.agentStatusPending||now<self.nextAgentStatus)return;
+    self.nextAgentStatus=now+5;self.agentStatusPending=YES;
+    NSUInteger generation=self.generation;NSURL *url=[self agentStatusURL];
+    __weak HaloVeilView *weakSelf=self;__weak WKWebView *weakView=self.webView;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY,0),^{
+        NSDictionary *snapshot=ReadAgentStatus(url);
+        dispatch_async(dispatch_get_main_queue(),^{
+            HaloVeilView *self=weakSelf;
+            if(!self||generation!=self.generation||weakView!=self.webView)return;
+            [self.webView callAsyncJavaScript:@"window.HALOVEILAgentStatus.update(snapshot)" arguments:@{@"snapshot":snapshot}
+                inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id value,NSError *error){
+                    HaloVeilView *self=weakSelf;
+                    if(self&&generation==self.generation&&weakView==self.webView)self.agentStatusPending=NO;
+                }];
+        });
+    });
+}
 + (NSDictionary *)activeState {
     NSUInteger sessions=0,resources=0;NSMutableDictionary *screens=[NSMutableDictionary dictionary];
     for(HaloVeilView *view in Views().allObjects){
@@ -238,6 +267,7 @@ static void Log(NSString *event,NSDictionary *fields) {
     self.peakWindowLevel=MAX(self.peakWindowLevel,level);
     if(!self.webView)[self activateForWindow];WKWebView *view=self.webView;
     if(self.preparing){[self prepareOneFrame];return;}
+    [self refreshAgentStatus];
     if(!self.pageReady||!view||self.framePending||self.leaseFD<0||[Owners() objectForKey:self.screenKey]!=self)return;
     self.framePending=YES;NSUInteger generation=self.generation;NSTimeInterval now=NSProcessInfo.processInfo.systemUptime;
     BOOL diagnostics=now>=self.nextDiagnostics;if(diagnostics)self.nextDiagnostics=now+(now-self.startupAt<6?1:5);
@@ -295,6 +325,7 @@ static void Log(NSString *event,NSDictionary *fields) {
 }
 - (void)unloadAnimation {
     self.pageReady=NO;self.preparing=NO;self.presented=NO;self.framePending=NO;
+    self.agentStatusPending=NO;self.nextAgentStatus=0;
     [self.startupCover removeFromSuperview];self.startupCover=nil;WKWebView *view=self.webView;self.webView=nil;if(!view)return;
     view.navigationDelegate=nil;[view evaluateJavaScript:@"window.HALOVEILHost?.dispose()" completionHandler:nil];
     [view stopLoading];[view removeFromSuperview];

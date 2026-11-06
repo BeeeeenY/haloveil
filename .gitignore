@@ -2,6 +2,7 @@
 ._*
 build/
 .local/
+/oldVersionBackup/
 *.dSYM/
 __pycache__/
 *.py[cod]

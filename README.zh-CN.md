@@ -8,7 +8,7 @@
 
 ## 下载与安装
 
-1. **[下载 HaloVeil 1.0.0](downloads/HaloVeil-1.0.0.zip?raw=true)** 并解压。安装包内含 `HaloVeil.saver`；GitHub 的「Source code」压缩包是源码项目。
+1. **[下载 HaloVeil 1.0.0](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.0.0.zip)** 并解压。安装包内含 `HaloVeil.saver`；GitHub 的「Source code」压缩包是源码项目。
 2. 双击 **`HaloVeil.saver`**，在 macOS 提示时选择 **「仅为此用户安装」**。
 3. 打开 **「系统设置 → 屏幕保护程序」**，向下滚动到 **「其他 / Other」**，点击 **HaloVeil** 切换。有些 macOS 版本的路径是 **「系统设置 → 墙纸 → 屏幕保护程序 → 自定 / Custom → 其他 / Other → HaloVeil」**。
 4. 点击 **「预览 / Preview」**，或通过屏幕保护程序的触发角启动。移动鼠标或按键退出，需要密码时正常解锁。
@@ -26,7 +26,7 @@
 - 每个屏幕只有一个活动渲染实例，跨进程独占；退出、移出窗口及休眠时释放资源。
 - 提供 Apple Silicon 与 Intel 通用安装包、独立预览 App、构建工具和回归测试。
 
-画面里的遥测数据属于 **视觉演示**，尚未连接真实 AI agent。这是屏保，不替换桌面壁纸、密码输入界面、开机画面或 FileVault 解锁页。
+已发布的 1.0.0 安装包里的遥测数据属于 **视觉演示**。源码构建版新增可选的 [Codex 账户用量接入](docs/CODEX-STATUS.md)：显示已用/剩余额度、自动恢复时间、Full reset 可用次数及最近已知到期日期，通过包外固定目录读取；其他面板仍为视觉演示。屏保不替换桌面壁纸、密码输入界面、开机画面或 FileVault 解锁页。
 
 ## 运行要求
 
@@ -34,7 +34,13 @@
 - 安装包使用本地签名，**未经过 Apple 公证**，系统可能出现安全提示。
 - 启动会先有一小段深色准备画面，在测试机器上约 1 秒，随后约 0.18 秒淡入。实际帧率受硬件与系统负载影响。
 
-## 从源码构建
+## 预览当前源码
+
+双击 `preview.command`，或用浏览器打开本机的 [web/index.html](web/index.html)，即可查看当前网页效果，无需构建、安装或启动后台服务。已有构建时，也可打开 `build/HaloVeil Preview.app` 进行原生窗口预览。Codex 状态文件读取需要原生预览；普通浏览器中该面板显示 `NO DATA`。
+
+上方下载仍为稳定版 1.0.0 安装包。源码改动先通过预览确认，不会自动替换下载包。
+
+## 构建可安装发布版（按需）
 
 安装 Apple Command Line Tools（`xcode-select --install`）与 Python 3，然后运行：
 
@@ -43,7 +49,7 @@
 python3 tools/package.py
 ```
 
-生成 `build/HaloVeil.saver` 和 `build/HaloVeil Preview.app`；打包命令更新 `downloads/HaloVeil-1.0.0.zip` 与校验值。双击生成的 `.saver` 安装，或直接打开预览 App，无需安装即可预览。
+这些发布命令会生成 `build/HaloVeil.saver` 和 `build/HaloVeil Preview.app`，并更新对应版本的 ZIP 与校验值。日常浏览器预览无需运行它们。发布新安装包前，先更新版本号和下载链接。
 
 ```sh
 ./tests/run.command

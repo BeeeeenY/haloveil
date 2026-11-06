@@ -30,10 +30,23 @@ The preview screenshot was generated from the rebranded web content and visually
 - Display isolation uses simulated display IDs; no dual-physical-display claim is made.
 - The minimum deployment target is macOS 12. Actual macOS compatibility beyond the tested system needs verification.
 
+## Codex account panel (source builds)
+
+Validated on 2026-11-06 using the installed Codex app-server and a private account snapshot. The collector successfully read live limits and earned-reset details. The independent per-user LaunchAgent completed its first scheduled run successfully, publishing a fresh `0600` snapshot at the fixed external path.
+
+- 6 Python contract tests: reset eligibility/nearest future expiry, authoritative counts, missing fields, multiple buckets/windows, numeric validation and atomic private writes.
+- 12 native file-reader checks: schema validation, field filtering, unknown numbers, private permissions, invalid/oversized JSON, symlinks and FIFO rejection.
+- 7 native WKWebView UI checks: consumed/remaining percentage, stale snapshots, missing data, unknown fields, elapsed reset times, future timestamps and safe text rendering.
+- Real snapshot values and dates reached the panel through the native bridge in all 3 startup cycles. Final startup samples: 916 / 884 / 941 ms to first frame; 60.0 / 60.0 / 60.2 draw FPS over the first 5 seconds; one layout build each. Snapshot visually checked.
+- Existing 8-cycle lifecycle suite passed with zero remaining sessions/web views.
+
+The installed macOS screen saver host's access to the external status directory has not been verified. Offscreen tests and the independent preview app do not establish sandbox access in that host. A rejected or missing file displays `NO DATA`; a snapshot older than 15 minutes displays `STALE`. See [setup and boundaries](CODEX-STATUS.md).
+
 ## Reproduce
 
 ```sh
 ./build.command
+./tests/agent-status.command
 ./tests/run.command
 ./tests/startup.command
 python3 tools/package.py

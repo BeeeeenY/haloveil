@@ -98,6 +98,23 @@ header{display:grid;grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,
 .ag .st{color:var(--dim);overflow:hidden}
 .ag .st.w{color:var(--white)}
 
+.codex-status h3{display:flex;justify-content:space-between;gap:6px}
+.codex-badge{font-size:7px;letter-spacing:.6px;color:var(--dim);font-weight:500}
+.codex-status[data-state="ok"] .codex-badge{color:var(--teal)}
+.codex-status[data-state="stale"] .codex-badge{color:var(--pink)}
+.quota-window{margin:0 0 4px;min-width:0}
+.quota-value{font-size:9px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quota-track{height:2px;margin:3px 0;background:var(--line)}
+.quota-track i{display:block;height:100%;background:var(--teal)}
+.quota-renews,.quota-empty,.reset-expiry{font-size:8px;color:var(--dim);white-space:nowrap}
+.quota-empty{padding:4px 0 8px}
+.reset-count{font-size:8px;color:var(--text);letter-spacing:.4px}
+.reset-count b{color:var(--pink);font-weight:600}
+.reset-expiry{margin-top:2px}
+.codex-status .cap{text-overflow:ellipsis;font-size:7px;letter-spacing:-.1px}
+.codex-status[data-state="stale"] .quota-value{color:var(--dim)}
+.codex-status[data-state="stale"] .quota-track i{background:var(--dim)}
+
 @media (max-width:1000px){
   html,body{overflow:auto}
   .app{height:auto}
@@ -158,7 +175,13 @@ header{grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,1fr));gap:0}
     <div class="p"><h3>SHARED SCENE / DIFFERENCE FIELD</h3><canvas id="cDiff"></canvas><div class="cap">same input · local difference · inspect source</div></div>
     <div class="p"><h3>SOURCE / EXTRACTION ROUTES</h3><div class="routes" id="routes"></div><div class="cap">pages → equations → runnable source</div></div>
     <div class="p"><h3>VALIDATION / SAMPLE BUFFER</h3><canvas id="cVal"></canvas><div class="cap">illustrative / source check required</div></div>
-    <div class="p"><h3>12 AGENTS / DISPATCH</h3><div class="agents" id="agents"></div><div class="cap">independent jobs / shared event bus</div></div>
+    <div class="p codex-status" id="codexStatus" data-state="unavailable">
+      <h3>CODEX / USAGE LIMITS <span class="codex-badge" id="codexBadge">NO DATA</span></h3>
+      <div id="codexWindows"></div>
+      <div class="reset-count">FULL RESET · <b id="codexResetCount">UNKNOWN</b></div>
+      <div class="reset-expiry" id="codexExpiry">Expiry unavailable</div>
+      <div class="cap" id="codexCaption"></div>
+    </div>
     <div class="p"><h3>METHOD / REFERENCE INDEX</h3><canvas id="cIdx"></canvas><div class="cap">28 scenes / 7 matched / 4 further review</div></div>
   </section>
 </div>
@@ -166,6 +189,7 @@ header{grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,1fr));gap:0}
 <script src="version.js"></script>
 <script src="settings.js"></script>
 <script src="runtime.js"></script>
+<script src="agent-status.js"></script>
 <script src="animation.js"></script>
 </body>
 </html>

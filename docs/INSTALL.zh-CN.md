@@ -4,7 +4,7 @@
 
 ## 下载
 
-下载本项目提供的 **[HaloVeil-1.0.0.zip](../downloads/HaloVeil-1.0.0.zip?raw=true)**。如果项目之后创建 GitHub Release，下载其中同名的安装包即可；GitHub 自动生成的「Source code」压缩包是源码。
+下载本项目提供的 **[HaloVeil-1.0.0.zip](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.0.0.zip)**。如果项目之后创建 GitHub Release，下载其中同名的安装包即可；GitHub 自动生成的「Source code」压缩包是源码。
 
 使用 macOS 的归档实用工具解压，保持 `.saver` 软件包完整，不要进入 Contents 目录单独安装里面的文件。直接安装 `.saver` 不需要 Xcode、Python、网页服务器或 Wallpaper Engine。
 

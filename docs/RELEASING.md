@@ -1,18 +1,19 @@
 # Publish this project on GitHub
 
-## First upload / 首次上传
+## Upload source changes / 上传源码改动
 
-The project folder is a standalone local Git repository. It has no configured remote and nothing has been published automatically.
+The local repository is connected to `https://github.com/BeeeeenY/haloveil.git` on `main`. Local edits are not uploaded automatically. For the current development cycle, review `web/index.html` or an existing Preview app first; do not build a new saver or overwrite the stable ZIP without an explicit release request.
 
-本文件夹是独立的本地 Git 仓库，未设置远程仓库，也未自动上传任何内容。
+本地仓库已连接 `https://github.com/BeeeeenY/haloveil.git`，当前分支为 `main`。本地修改不会自动上传。当前开发阶段先通过 `web/index.html` 或已有 Preview App 确认效果，明确要求发布安装包后再构建屏保和更新 ZIP。
 
-1. Create an empty GitHub repository, or use GitHub Desktop's **Add Local Repository** and then **Publish repository**. / 在 GitHub 创建空仓库，或在 GitHub Desktop 中添加本地仓库并发布。
-2. Upload or commit the project files. Keep `LICENSE`, `NOTICE`, all three README files, `source/`, `web/`, `assets/`, `docs/`, `tests/`, `tools/`, `build.command`, `version.json`, and `downloads/`. / 上传源码、说明、完整许可与 `downloads/` 安装包。
+1. Review the changes in GitHub Desktop or `git status`. Commit and push when ready. / 在 GitHub Desktop 或 `git status` 中检查改动，确认后提交并推送。
+2. Keep `LICENSE`, `NOTICE`, both README files, `AGENTS.md`, `source/`, `web/`, `assets/`, `docs/`, `tests/`, `tools/`, `preview.command`, `build.command`, `version.json`, and `downloads/`. / 保留源码、测试、预览入口、说明、完整许可与下载文件。
 3. Do not generate a new MIT license on GitHub. The existing upstream license is required. / 不要在 GitHub 使用 MIT 模板覆盖现有许可。
+4. `oldVersionBackup/` is a protected local archive and must remain ignored and untouched. `build/`, `.local/`, caches, extracted packages and OS metadata are also excluded. / `oldVersionBackup/` 是受保护的本地旧版备份，不修改、不上传；构建文件、测试报告、缓存、解压副本和系统杂项同样不上传。
 
-The README uses a relative link to the versioned ZIP in `downloads/`. That link works under whichever owner/repository name you choose, without editing account-name placeholders or creating a GitHub Release first.
+README and install guides use the explicit direct-download URL returned by GitHub for `downloads/HaloVeil-1.0.0.zip`. Keep that tracked ZIP and `downloads/SHA256SUMS` in the repository. A source-only update does not change the stable 1.0.0 binary. If the repository, default branch or release filename changes, update all four download links.
 
-README 使用指向 `downloads/` 安装包的相对链接，不依赖 GitHub 用户名、仓库名或预先创建 Release，上传后即可下载。
+README 与安装说明统一使用 GitHub 为 `downloads/HaloVeil-1.0.0.zip` 返回的明确下载地址。该 ZIP 与 `downloads/SHA256SUMS` 必须保留并上传。仅上传新源码不会更新稳定版 1.0.0 安装包；仓库、默认分支或文件名变化后，需同步更新四处下载链接。
 
 ## Rebuild a release
 

@@ -1150,26 +1150,6 @@ function renderRoutes() {
 runtime.every(() => { const i = (rnd() * ROUTES.length) | 0; rState[i] = (rState[i] + 1) % 4; renderRoutes(); }, 500);
 renderRoutes();
 
-// --- agents ---
-const ROLES = ['read', 'build', 'review', 'qa'];
-const AG = Array.from({ length: 12 }, (_, i) => ({ id: String(i + 1).padStart(2, '0'), role: ROLES[i % 4], p: rnd() * 8, sp: rr(0.6, 2), st: 'working' }));
-const agEl = document.getElementById('agents');
-const ROLE_COL = { read: '#98e0cf', build: '#f0a6c6', review: '#d7dae0', qa: '#f0a6c6' };
-agEl.innerHTML = AG.map(a => `<div class="ag"><span class="id">${a.id}</span><span class="rl">${a.role}</span><span class="cells">${'<i></i>'.repeat(6)}</span><span class="st"></span></div>`).join('');
-const agRows = [...agEl.children];
-function agentsTick(dt) {
-  AG.forEach((a, i) => {
-    a.p += a.sp * dt;
-    if (a.p > 9) { a.p = 0; a.sp = rr(0.6, 2); }
-    const done = Math.floor(a.p);
-    const cells = agRows[i].children[2].children;
-    for (let k = 0; k < 6; k++) cells[k].style.background = k < done ? ROLE_COL[a.role] : k === done ? '#5a5e66' : '#1d1f24';
-    const st = a.p < 0.6 ? 'dispatch' : a.p > 6 ? 'idle' : 'working';
-    const se = agRows[i].children[3];
-    if (se.textContent !== st) { se.textContent = st; se.className = 'st' + (st === 'working' ? ' w' : ''); }
-  });
-}
-
 // --- canvases ---
 const cAdv = document.getElementById('cAdv'), cDiff = document.getElementById('cDiff'), cVal = document.getElementById('cVal'), cIdx = document.getElementById('cIdx');
 let advP = [];
@@ -1316,7 +1296,7 @@ function renderFrame(now) {
       panelLast[index] = now; panelUpdates[index]++;
       if (index === 0) drawAdv(panelDT);
       else if (index === 1) drawDiff();
-      else if (index === 2) { drawVal(); agentsTick(panelDT); }
+      else if (index === 2) { drawVal(); }
       else drawIdx();
       nextPanelAt += step; updates++;
     } while (now + 1 >= nextPanelAt && updates < 2 && performance.now()-t0 < frameInterval*0.65);
@@ -1394,7 +1374,7 @@ function prepareFrame() {
         const previous=qpt(runner.cv, Math.max(0,runner.t-0.001));
         runner.px=previous.x;runner.py=previous.y;
       }
-      drawStage(0); drawAdv(0); drawDiff(); drawVal(); drawIdx(); agentsTick(0);
+      drawStage(0); drawAdv(0); drawDiff(); drawVal(); drawIdx();
     } finally { ringRot = savedRotation; warmupDrawing = false; }
     warmupFrames++;
     warmupMS = performance.now() - warmupStarted;

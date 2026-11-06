@@ -2,7 +2,9 @@
 
 ## Prerequisites
 
-Use macOS with Apple Command Line Tools or Xcode, plus Python 3. The build uses `clang`, `lipo`, `sips`, and `codesign` from the local developer tools and system. There is no npm install, web build framework, external font, server, or API key.
+For normal visual work, open `web/index.html` or double-click `preview.command`. No build tools or installation are needed. Use an existing `build/HaloVeil Preview.app` when the native status-file bridge is needed. Do not generate a new `.saver` or release ZIP until packaging is explicitly requested.
+
+For native/release work, use macOS with Apple Command Line Tools or Xcode, plus Python 3. The build uses `clang`, `lipo`, `sips`, and `codesign` from the local developer tools and system. There is no npm install, web build framework, external font, server, or API key.
 
 ```sh
 xcode-select --install
@@ -18,10 +20,12 @@ web/             Bundled HTML, styles, Canvas animation, runtime, release metada
 assets/          Public preview image used in README and saver thumbnails
 tests/           Native startup and lifecycle integration tests
 tools/           Release packaging and local diagnostic export
+preview.command  Open web/index.html without a build or background service
 docs/            Installation, development, testing, licensing, release notes
 downloads/       Installable ZIP and SHA-256 checksums, intentionally versioned
 build/           Generated signed bundles and manifest; ignored by Git
 .local/          Private test apps, reports, and diagnostic logs; ignored by Git
+oldVersionBackup/ Protected local archive; ignored by Git, never modified
 ```
 
 ## Make changes
@@ -42,9 +46,9 @@ Each display has an in-process owner and a kernel file lease. The saver stops an
 
 ## Agent status
 
-The demo is not connected to an agent. The page's content policy blocks network connections; the native host does not yet read external status data. Adding a `fetch()` alone does not implement integration.
+Source builds include an optional Codex account usage panel. A separate collector reads `account/rateLimits/read` and atomically publishes a private snapshot to `~/Library/Application Support/HaloVeil/agent-status.json`. The native host validates it and passes display fields through a structured bridge, without opening network access in the web page. Other animation panels and counters remain demo data; task progress is not connected.
 
-A future integration should keep state outside the signed application bundle, use an explicitly configured data location or read-only loopback endpoint, and pass validated state through a native bridge. File permissions and networking must be checked in the actual macOS saver host. Render frequency and state-update frequency should remain separate.
+See [Codex status setup, meanings and host-access boundaries](CODEX-STATUS.md). File permissions must still be verified in the actual macOS saver host. Account collection (5 minutes), file reads (5 seconds), and rendering remain independent.
 
 ## Test and package
 

@@ -17,7 +17,7 @@ codesign --force --sign - --timestamp=none "$TASK_APP"
 "$TASK_APP/Contents/MacOS/QA" "$TASK_ROOT/build/HaloVeil.saver" "$TASK_REPORT"
 python3 - "$TASK_REPORT" <<'PY'
 from pathlib import Path
-import json,sys
+import json,sys,os,datetime
 report=json.loads(Path(sys.argv[1]).read_text())
 passed=True
 for cycle in report['cycles']:
@@ -25,8 +25,19 @@ for cycle in report['cycles']:
     trace=[x for x in cycle['probe']['frames'] if x['at']<5000]
     correct=state['layoutBuilds']==1 and state['warmupFrames']>=37 and not state['errors']
     passed=passed and correct
+    if os.environ.get('HALOVEIL_TEST_AGENT_STATUS'):
+        fixture=json.loads(Path(os.environ['HALOVEIL_TEST_AGENT_STATUS']).read_text())
+        agent=cycle['samples'][-1]['agent']
+        passed=passed and agent['badge']=='SYNCED'
+        count=fixture['fullReset']['availableCount']
+        if count is not None: passed=passed and agent['count']==str(count)+' AVAILABLE'
+        expiry=fixture['fullReset']['expiresAt']
+        if expiry is not None:
+            expected=datetime.datetime.fromtimestamp(expiry).strftime('%Y-%m-%d %H:%M')
+            passed=passed and agent['expiry']=='NEXT KNOWN EXPIRY '+expected
     print('Cycle',cycle['cycle'],'prepare',round(cycle['firstFrameMS']),'ms; first 5 seconds',round(len(trace)/5,1),'FPS; max gap',round(max(x['gap'] for x in trace),1),'ms; layouts',state['layoutBuilds'],'builds')
 print('Startup checks passed' if passed else 'Startup checks failed',sys.argv[1])
 print('Offscreen draw submission samples, not physical display presentation FPS.')
+if report.get('statusChecks'): print('Account status UI checks:',report['statusChecks'])
 raise SystemExit(0 if passed else 1)
 PY
