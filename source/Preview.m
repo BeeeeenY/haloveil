@@ -1,4 +1,4 @@
-// A windowed preview of the actual .saver bundle, without installing it.
+// A windowed preview of the native renderer, without installing a screen saver.
 #import <Cocoa/Cocoa.h>
 #import <ScreenSaver/ScreenSaver.h>
 
@@ -18,7 +18,11 @@
     applicationMenuItem.submenu = applicationMenu;
     [menu addItem:applicationMenuItem];
     NSApp.mainMenu = menu;
-    NSURL *url = [NSBundle.mainBundle.builtInPlugInsURL URLByAppendingPathComponent:@"HaloVeil.saver"];
+    NSURL *url = [NSBundle.mainBundle.builtInPlugInsURL URLByAppendingPathComponent:@"HaloVeilRenderer.bundle"];
+    // Release builds still embed the installable saver. Development builds use
+    // a private renderer bundle so updating Preview does not rebuild that saver.
+    if (![NSFileManager.defaultManager fileExistsAtPath:url.path])
+        url = [NSBundle.mainBundle.builtInPlugInsURL URLByAppendingPathComponent:@"HaloVeil.saver"];
     self.saverBundle = [NSBundle bundleWithURL:url];
     NSError *error = nil;
     if (![self.saverBundle loadAndReturnError:&error]) {

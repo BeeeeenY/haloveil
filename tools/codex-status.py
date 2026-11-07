@@ -15,6 +15,7 @@ import tempfile
 import time
 
 DEFAULT_OUTPUT = Path.home() / "Library/Application Support/HaloVeil/agent-status.json"
+DEFAULT_INTERVAL = 3600
 MAX_BYTES = 65536
 
 
@@ -26,7 +27,7 @@ def timestamp(value):
     return value if number(value) and 0 < value < 253402300800 else None
 
 
-def normalize(raw, now=None):
+def normalize(raw, now=None, interval=None):
     """Allow-list display fields. Never publish account IDs, credit IDs or credentials."""
     now = time.time() if now is None else now
     if not isinstance(raw, dict):
@@ -66,8 +67,11 @@ def normalize(raw, now=None):
                     if isinstance(c, dict) and c.get("status") == "available"
                     and c.get("resetType") == "codexRateLimits"] if isinstance(credits, list) else []
         reset["expiresAt"] = min((t for t in expiries if t is not None and t > now), default=None)
-    return {"schemaVersion": 1, "provider": "codex", "state": "ok", "fetchedAt": now,
-            "limits": limits, "fullReset": reset}
+    snapshot = {"schemaVersion": 1, "provider": "codex", "state": "ok", "fetchedAt": now,
+                "limits": limits, "fullReset": reset}
+    if interval is not None:
+        snapshot["refreshIntervalSecs"] = interval
+    return snapshot
 
 
 def find_codex(explicit=None):
@@ -160,8 +164,8 @@ def write_snapshot(path, snapshot):
             os.unlink(temporary)
 
 
-def service(install, binary=None):
-    """Install a per-user, five-minute collector independently of the repository."""
+def service(install, binary=None, interval=DEFAULT_INTERVAL):
+    """Install a per-user periodic collector independently of the repository."""
     label = "dev.haloveil.codex-status"
     domain = f"gui/{os.getuid()}"
     directory = DEFAULT_OUTPUT.parent
@@ -170,7 +174,7 @@ def service(install, binary=None):
     if install:
         executable = find_codex(binary)
         # Verify account access before changing the user's service configuration.
-        write_snapshot(DEFAULT_OUTPUT, normalize(read_account(executable)))
+        write_snapshot(DEFAULT_OUTPUT, normalize(read_account(executable), interval=interval))
         source = Path(__file__).read_bytes()
         helper.write_bytes(source)
         helper.chmod(0o600)
@@ -179,7 +183,7 @@ def service(install, binary=None):
         os.close(fd)
         plist.parent.mkdir(parents=True, exist_ok=True)
         config = {"Label": label, "ProgramArguments": [str(Path(sys.executable).resolve()), str(helper),
-                  "--codex", executable], "RunAtLoad": True, "StartInterval": 300,
+                  "--codex", executable, "--interval", str(interval)], "RunAtLoad": True, "StartInterval": interval,
                   "ProcessType": "Background", "StandardOutPath": str(logfile), "StandardErrorPath": str(logfile)}
         plist.write_bytes(plistlib.dumps(config))
         plist.chmod(0o600)
@@ -190,7 +194,7 @@ def service(install, binary=None):
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if result.returncode:
             raise RuntimeError("Could not start the user collector; run --watch manually")
-        print("Installed Codex status collector (every 5 minutes, including after sign-in).")
+        print(f"Installed Codex status collector (every {interval // 60} minutes, including after sign-in).")
     else:
         plist.unlink(missing_ok=True)
         helper.unlink(missing_ok=True)
@@ -203,18 +207,19 @@ def main():
     parser.add_argument("--codex", help="Codex executable (uses the existing ChatGPT sign-in)")
     parser.add_argument("--input", type=Path, help="Normalize an account/rateLimits/read JSON response instead")
     parser.add_argument("--watch", action="store_true", help="Refresh until stopped; default is one read")
-    parser.add_argument("--interval", type=int, default=300, help="Seconds between reads; minimum 60")
+    parser.add_argument("--interval", type=int, default=DEFAULT_INTERVAL,
+                        help="Seconds between reads, including --install (default 3600; range 60–86400)")
     actions = parser.add_mutually_exclusive_group()
-    actions.add_argument("--install", action="store_true", help="Install a per-user collector that refreshes every 5 minutes")
+    actions.add_argument("--install", action="store_true", help="Install a per-user collector (default: once an hour)")
     actions.add_argument("--uninstall", action="store_true", help="Stop and remove the per-user collector")
     args = parser.parse_args()
-    if args.interval < 60 or (args.watch and args.input):
-        parser.error("Use --interval >= 60; --input cannot be combined with --watch")
+    if not 60 <= args.interval <= 86400 or (args.watch and args.input):
+        parser.error("Use --interval 60–86400; --input cannot be combined with --watch")
     if args.install or args.uninstall:
         if args.input or args.watch or args.output != DEFAULT_OUTPUT:
             parser.error("Service actions use the default location and cannot be combined with --input/--watch/--output")
         try:
-            service(args.install, args.codex)
+            service(args.install, args.codex, args.interval)
         except (RuntimeError, OSError) as error:
             print(str(error) if isinstance(error, RuntimeError) else "Collector setup failed; check permissions", file=sys.stderr)
             return 1
@@ -222,7 +227,7 @@ def main():
     while True:
         try:
             raw = json.loads(args.input.read_text()) if args.input else read_account(find_codex(args.codex))
-            write_snapshot(args.output, normalize(raw))
+            write_snapshot(args.output, normalize(raw, interval=args.interval))
             print("Updated Codex usage snapshot.", flush=True)
         except (RuntimeError, OSError, ValueError, KeyError) as error:
             # Leave the last good snapshot intact: its original timestamp makes it stale.

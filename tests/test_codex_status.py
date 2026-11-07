@@ -5,6 +5,8 @@ from pathlib import Path
 import stat
 import tempfile
 import unittest
+from unittest.mock import patch
+import plistlib
 
 spec = importlib.util.spec_from_file_location("codex_status", Path(__file__).resolve().parents[1] / "tools/codex-status.py")
 status = importlib.util.module_from_spec(spec)
@@ -12,6 +14,23 @@ spec.loader.exec_module(status)
 
 
 class CodexStatusTests(unittest.TestCase):
+    def test_service_interval_controls_schedule_and_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            output = home / "Library/Application Support/HaloVeil/agent-status.json"
+            with patch.object(status, "DEFAULT_OUTPUT", output), patch.object(status.Path, "home", return_value=home), \
+                    patch.object(status, "find_codex", return_value="/test/codex"), \
+                    patch.object(status, "read_account", return_value={}), \
+                    patch.object(status.subprocess, "run") as run:
+                run.return_value.returncode = 0
+                status.service(True, interval=3600)
+                config = plistlib.loads((home / "Library/LaunchAgents/dev.haloveil.codex-status.plist").read_bytes())
+                self.assertEqual(config["StartInterval"], 3600)
+                self.assertEqual(config["ProgramArguments"][-2:], ["--interval", "3600"])
+                self.assertNotIn("--watch", config["ProgramArguments"])
+                self.assertFalse(config.get("KeepAlive", False))
+                self.assertEqual(json.loads(output.read_text())["refreshIntervalSecs"], 3600)
+
     def test_real_fields_and_nearest_available_future_reset(self):
         raw = {"accountId": "private-account", "access_token": "private-token",
                "rateLimitsByLimitId": {"codex": {"primary": {"usedPercent": 2, "windowDurationMins": 10080, "resetsAt": 5000}}},

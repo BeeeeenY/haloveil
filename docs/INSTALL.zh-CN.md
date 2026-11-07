@@ -4,7 +4,9 @@
 
 ## 下载
 
-下载本项目提供的 **[HaloVeil-1.0.0.zip](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.0.0.zip)**。如果项目之后创建 GitHub Release，下载其中同名的安装包即可；GitHub 自动生成的「Source code」压缩包是源码。
+下载本项目提供的 **[HaloVeil-1.1.0.zip](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.1.0.zip)**。如果项目之后创建 GitHub Release，下载其中同名的安装包即可；GitHub 自动生成的「Source code」压缩包是源码。
+
+**1.1.0 / build 2** 使用已确认的原版 A 预设、45 个 runner 粒子及完整 56 项场景参数。标题为 **BEN'S CONTROL ROOM** / **IDEAS IN MOTION**；第一格显示 Codex 用量，第七格保留演示用的 **12 AGENTS / DISPATCH**。包内已包含可选的 [Codex 文件桥接](CODEX-STATUS.md)，账户采集需另行主动启用。
 
 使用 macOS 的归档实用工具解压，保持 `.saver` 软件包完整，不要进入 Contents 目录单独安装里面的文件。直接安装 `.saver` 不需要 Xcode、Python、网页服务器或 Wallpaper Engine。
 

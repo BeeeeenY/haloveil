@@ -63,13 +63,6 @@ header{display:grid;grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,
 .p .cap{margin-top:auto;font-size:8px;color:var(--dim);padding-top:3px;white-space:nowrap;overflow:hidden}
 .p canvas{width:100%;flex:1;min-height:0;display:block}
 
-.feed{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;font-size:9px;line-height:1.4;overflow:hidden}
-.feed div{white-space:nowrap;color:var(--dim)}
-.feed div:last-child{color:var(--white);font-weight:600}
-.n{color:var(--faint);margin-right:8px}
-.vb{display:inline-block;width:42px;font-weight:800}
-.vb.build{color:var(--pink)} .vb.check{color:var(--text)} .vb.read{color:var(--teal)} .vb.qa{color:var(--white)}
-
 .btns{display:flex;gap:4px;margin-top:4px}
 .btns span{flex:1;font-size:8px;border:1px solid var(--line2);padding:1px 5px;color:var(--dim);transition:all .3s}
 .btns span.on{background:#cfd2d8;color:#000;border-color:#cfd2d8}
@@ -152,7 +145,7 @@ header{grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,1fr));gap:0}
 <body>
 <div class="app">
   <header>
-    <div class="brand"><h1>HALOVEIL</h1><p>OFFLINE SYSTEM TELEMETRY · VISUAL DEMO</p></div>
+    <div class="brand"><h1>BEN'S CONTROL ROOM</h1><p>IDEAS IN MOTION</p></div>
     <div class="kpi"><div class="k">TASKS</div><div class="v" id="k0">64</div><div class="seg"><i></i></div></div>
     <div class="kpi"><div class="k">AGENTS</div><div class="v pink" id="k1">12</div><div class="seg"><i></i></div></div>
     <div class="kpi"><div class="k">METHODS</div><div class="v" id="k2">11</div><div class="seg"><i></i></div></div>
@@ -168,13 +161,6 @@ header{grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,1fr));gap:0}
   </div>
 
   <section class="panels">
-    <div class="p"><h3>INVESTIGATION FEED</h3><div class="feed" id="feed"></div></div>
-    <div class="p"><h3>ADVECTION / PARTICLE SOLVER</h3><canvas id="cAdv"></canvas>
-      <div class="btns" id="advBtns"><span class="on">ADVECT</span><span>PROJECT</span><span>RENDER</span></div></div>
-    <div class="p"><h3>METHOD WORKSPACE</h3><div class="code" id="code"></div></div>
-    <div class="p"><h3>SHARED SCENE / DIFFERENCE FIELD</h3><canvas id="cDiff"></canvas><div class="cap">same input · local difference · inspect source</div></div>
-    <div class="p"><h3>SOURCE / EXTRACTION ROUTES</h3><div class="routes" id="routes"></div><div class="cap">pages → equations → runnable source</div></div>
-    <div class="p"><h3>VALIDATION / SAMPLE BUFFER</h3><canvas id="cVal"></canvas><div class="cap">illustrative / source check required</div></div>
     <div class="p codex-status" id="codexStatus" data-state="unavailable">
       <h3>CODEX / USAGE LIMITS <span class="codex-badge" id="codexBadge">NO DATA</span></h3>
       <div id="codexWindows"></div>
@@ -182,6 +168,13 @@ header{grid-template-columns:minmax(240px,1.7fr) repeat(5,minmax(0,1fr));gap:0}
       <div class="reset-expiry" id="codexExpiry">Expiry unavailable</div>
       <div class="cap" id="codexCaption"></div>
     </div>
+    <div class="p"><h3>ADVECTION / PARTICLE SOLVER</h3><canvas id="cAdv"></canvas>
+      <div class="btns" id="advBtns"><span class="on">ADVECT</span><span>PROJECT</span><span>RENDER</span></div></div>
+    <div class="p"><h3>METHOD WORKSPACE</h3><div class="code" id="code"></div></div>
+    <div class="p"><h3>SHARED SCENE / DIFFERENCE FIELD</h3><canvas id="cDiff"></canvas><div class="cap">same input · local difference · inspect source</div></div>
+    <div class="p"><h3>SOURCE / EXTRACTION ROUTES</h3><div class="routes" id="routes"></div><div class="cap">pages → equations → runnable source</div></div>
+    <div class="p"><h3>VALIDATION / SAMPLE BUFFER</h3><canvas id="cVal"></canvas><div class="cap">illustrative / source check required</div></div>
+    <div class="p"><h3>12 AGENTS / DISPATCH</h3><div class="agents" id="agents"></div><div class="cap">independent jobs / shared event bus</div></div>
     <div class="p"><h3>METHOD / REFERENCE INDEX</h3><canvas id="cIdx"></canvas><div class="cap">28 scenes / 7 matched / 4 further review</div></div>
   </section>
 </div>

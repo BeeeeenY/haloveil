@@ -29,7 +29,10 @@
   function render() {
     const now = Date.now() / 1000;
     const valid = snapshot?.state === 'ok' && finite(snapshot.fetchedAt) && snapshot.fetchedAt > 0 && snapshot.fetchedAt <= now + 60;
-    const stale = valid && now - snapshot.fetchedAt > 900;
+    const interval = finite(snapshot?.refreshIntervalSecs) && snapshot.refreshIntervalSecs >= 60 && snapshot.refreshIntervalSecs <= 86400
+      ? snapshot.refreshIntervalSecs : 0;
+    // Allow one scheduled refresh plus 15 minutes for connection delays.
+    const stale = valid && now - snapshot.fetchedAt > interval + 900;
     badge.textContent = valid ? (stale ? 'STALE' : 'SYNCED') : 'NO DATA';
     panel.dataset.state = valid ? (stale ? 'stale' : 'ok') : 'unavailable';
     windows.replaceChildren();

@@ -6,9 +6,11 @@ A silent, offline macOS screen saver with a rotating data ring, woven light fiel
 
 ![HaloVeil screen saver](assets/preview.png)
 
+*Preview image uses sample Codex quota data.*
+
 ## Download and install
 
-1. **[Download HaloVeil 1.0.0](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.0.0.zip)** and unzip it. The ZIP contains `HaloVeil.saver`; the GitHub “Source code” ZIP is the source project.
+1. **[Download HaloVeil 1.1.0](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.1.0.zip)** and unzip it. The ZIP contains `HaloVeil.saver`; the GitHub “Source code” ZIP is the source project.
 2. Double-click **`HaloVeil.saver`** and choose **Install for this user** when macOS asks.
 3. Open **System Settings → Screen Saver**, scroll to **Other**, and select **HaloVeil**. On macOS versions that group these settings under Wallpaper, use **System Settings → Wallpaper → Screen Saver → Custom → Other → HaloVeil**.
 4. Use **Preview** or a screen saver Hot Corner to start it. Move the pointer or press a key to exit; unlock normally if required.
@@ -16,6 +18,8 @@ A silent, offline macOS screen saver with a rotating data ring, woven light fiel
 After installing, you must select **HaloVeil under Other**; installing the file alone does not always switch the active screen saver. If it is missing, quit and reopen System Settings.
 
 [Detailed installation / updates / removal](docs/INSTALL.md) · [中文安装说明](docs/INSTALL.zh-CN.md) · [SHA-256 checksums](downloads/SHA256SUMS)
+
+The latest package is **1.1.0 / build 2**. [HaloVeil 1.0.0](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.0.0.zip) remains available as a historical download; `SHA256SUMS` lists the latest package only.
 
 ## What is included
 
@@ -25,8 +29,10 @@ After installing, you must select **HaloVeil under Other**; installing the file 
 - A 60 FPS animation target, batched particle drawing, and a bounded main-canvas pixel budget.
 - One active renderer per display, with cross-process ownership and cleanup on exit, detachment, and sleep.
 - Universal Apple Silicon + Intel binaries, a windowed preview app, build tools, and regression tests.
+- The confirmed original preset **A**, with **45 runners** and all 56 scene parameters matched to [the reference configuration](tests/fixtures/original-config.json) across quality profiles.
+- **BEN'S CONTROL ROOM** / **IDEAS IN MOTION** headings; the Codex panel occupies row 1, column 1, and the demo **12 AGENTS / DISPATCH** panel occupies row 2, column 3.
 
-The published 1.0.0 download uses **visual demo** telemetry. Source builds add an optional [Codex account usage panel](docs/CODEX-STATUS.md) with usage/remaining percentages, automatic renewal, available Full resets and the next known expiry, read from a fixed location outside the bundle. Other panels remain a visual demo. This screen saver does not replace the desktop wallpaper, password entry interface, startup screen, or FileVault unlock screen.
+The 1.1.0 package includes an optional [Codex account usage panel and native file bridge](docs/CODEX-STATUS.md) with usage/remaining percentages, automatic renewal, available Full resets and the next known expiry, read from a fixed location outside the bundle. Collection requires separate opt-in setup; installing or previewing the screen saver does not start it. Other panels remain a visual demo. This screen saver does not replace the desktop wallpaper, password entry interface, startup screen, or FileVault unlock screen.
 
 ## Requirements
 
@@ -36,9 +42,9 @@ The published 1.0.0 download uses **visual demo** telemetry. Source builds add a
 
 ## Preview the current source
 
-Double-click `preview.command`, or open [web/index.html](web/index.html) locally in a browser. No build, installation or background service is started. If already built, `build/HaloVeil Preview.app` provides the native windowed preview. The Codex account file bridge requires the native preview; a browser shows `NO DATA` for that panel.
+Open `build/HaloVeil Preview.app` for the native windowed preview. After source changes, `./tools/build-preview.command` updates only that app without building an installable saver or release ZIP. The download also includes `HaloVeil Preview.app`.
 
-The download above remains the stable 1.0.0 package. Source changes are reviewed in the preview first and do not automatically replace the downloadable release.
+For a separate browser preview, double-click `preview.command` or open [web/index.html](web/index.html) locally. No build, installation or background service is started. The Codex account file bridge requires the native preview; a browser shows `NO DATA` for that panel. Source changes are reviewed in Preview first and do not automatically replace the downloadable 1.1.0 release.
 
 ## Build an installable release (when requested)
 

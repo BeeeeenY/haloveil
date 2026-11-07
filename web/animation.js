@@ -32,7 +32,9 @@ function fit(c) {
 /* =========================================================
    MAIN STAGE
    ========================================================= */
-const stage = document.getElementById('stage'); let S = stage.getContext('2d'); const S_MAIN = S;
+// Every frame covers this canvas with an opaque background. Only intermediate
+// trail/glow canvases need transparency.
+const stage = document.getElementById('stage'); let S = stage.getContext('2d', {alpha:false}); const S_MAIN = S;
 let W, H, cx, cy, R, RO, RMAX, thV, thS;
 let webBase, webLayers = [], layerEnv = [0, 0, 0], trailC, glowC, laneC;
 let curves = [], runners = [], comets = [], cards = [], wedges = [], pulses = [];
@@ -43,30 +45,72 @@ const HAS_FILTER = 'filter' in S;
 const easeIO = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const easeO = t => 1 - Math.pow(1 - t, 3);
 
-/* ---------- live configuration (driven by the console) ---------- */
-const BASE = {
-  tempo: 1, camera: 1, camZoom: 1, glow: 1, scan: 1,
-  ringSpeed: 1, ringPause: 1, ringWidth: 1, rimBright: 1, rimWidth: 1, dataFlicker: 1,
-  webBright: 1, webPulseBase: 0.15, webPulseAmp: 0.85, webSpin: 1,
-  runnerCount: 336, runnerBright: 1, runnerWidth: 1, runnerSpeed: 1, runnerVariety: 1,
-  cometPerBeat: 1.1, cometBurst: 4, cometTrickle: 0, cometLines: 1, cometWidth: 1, cometBright: 1, cometGlow: 1.1, cometSpeed: 1, cometFollow: 0,
-  beamBright: 1, beamBounce: 1, beamLen: 1, beamWidth: 1, beamGlow: 1, dashBright: 1, hazeCount: 8, hazeBright: 1,
-  flyerCount: 1, flyerBright: 1, flyerWidth: 1, flyerSpeed: 1, burstRate: 1, burstSize: 1, burstBright: 1, flareRate: 1, flareBright: 1,
-  rimDensity: 1, depthBlur: 1.4, depthDim: 0.9, webBlur: 0.7, parallax: 0.6, bokeh: 16, bokehBright: 1, atmos: 1, ringShadow: 1, vignette: 0.7,
+// User-confirmed HALOFLUX preset A. Keep the complete scene aligned with
+// tests/fixtures/original-config.json; quality profiles do not select a new scene.
+const ORIGINAL_CONFIG = {
+  "tempo": 1,
+  "camera": 1,
+  "camZoom": 1,
+  "glow": 1,
+  "scan": 1,
+  "ringSpeed": 1,
+  "ringPause": 1,
+  "ringWidth": 1,
+  "rimBright": 1,
+  "rimWidth": 1,
+  "dataFlicker": 1,
+  "webBright": 1.25,
+  "webPulseBase": 0.3,
+  "webPulseAmp": 0.4,
+  "webSpin": 1,
+  "runnerCount": 45,
+  "runnerBright": 1,
+  "runnerWidth": 1,
+  "runnerSpeed": 1,
+  "runnerVariety": 0,
+  "cometPerBeat": 2.5,
+  "cometBurst": 5,
+  "cometTrickle": 1.6,
+  "cometLines": 1,
+  "cometWidth": 1,
+  "cometBright": 1,
+  "cometGlow": 0.85,
+  "cometSpeed": 1,
+  "cometFollow": 1,
+  "beamBright": 1,
+  "beamBounce": 1,
+  "beamLen": 1,
+  "beamWidth": 1,
+  "beamGlow": 1,
+  "dashBright": 1,
+  "hazeCount": 8,
+  "hazeBright": 1,
+  "flyerCount": 1,
+  "flyerBright": 1,
+  "flyerWidth": 1,
+  "flyerSpeed": 1,
+  "burstRate": 1,
+  "burstSize": 1,
+  "burstBright": 1,
+  "flareRate": 1,
+  "flareBright": 1,
+  "rimDensity": 1,
+  "depthBlur": 1.4,
+  "depthDim": 0.9,
+  "webBlur": 0.7,
+  "parallax": 0.6,
+  "bokeh": 16,
+  "bokehBright": 1,
+  "atmos": 1,
+  "ringShadow": 1,
+  "vignette": 0.7
 };
-const PRESETS = {
-  A: { ...BASE, webBright: 1.25, webPulseBase: 0.3, webPulseAmp: 0.4, runnerCount: 45, runnerVariety: 0,
-       cometPerBeat: 2.5, cometBurst: 5, cometTrickle: 1.6, cometFollow: 1, cometGlow: 0.85 },
-  B: { ...BASE },
-};
-// 你的默认效果：把控制台「导出」的 values 粘贴进来替换 null，发给任何电脑打开都会默认使用它
-const BAKED_MINE = {tempo: 2.5, camera: 1, camZoom: 1, glow: 1.1, scan: 1, ringSpeed: 3, ringPause: 1.2, ringWidth: 1.3, rimBright: 1.8, rimWidth: 1.3, dataFlicker: 1, webBright: 0.9, webPulseBase: 0.1, webPulseAmp: 0.8, webSpin: 1, runnerCount: 788, runnerBright: 0.5, runnerWidth: 1, runnerSpeed: 0.6, runnerVariety: 0.4, cometPerBeat: 2.3, cometBurst: 9, cometTrickle: 1.5, cometLines: 1, cometWidth: 1, cometBright: 1, cometGlow: 1.1, cometSpeed: 0.8, cometFollow: 1, beamBright: 1.8, beamLen: 1.8, beamWidth: 0.7, beamBounce: 2, beamGlow: 3.5, dashBright: 1.9, hazeCount: 22, hazeBright: 1.5, flyerCount: 3, flyerBright: 3, flyerWidth: 1.4, flyerSpeed: 2.2, burstRate: 3.5, burstSize: 3, burstBright: 2.5, flareRate: 3.5, flareBright: 2, rimDensity: 1.2, depthBlur: 0, depthDim: 0.1, webBlur: 0, parallax: 0, bokeh: 0, bokehBright: 0, atmos: 0, ringShadow: 0, vignette: 0};   // 2026-10-21 定稿默认
-if (BAKED_MINE) PRESETS.MINE = { ...BASE, ...BAKED_MINE };
 const C = {
-  ...(PRESETS[settings.preset] || PRESETS.MINE || PRESETS.B),
-  tempo: settings.tempo,
-  ringSpeed: settings.ringSpeed,
-  camZoom: settings.cameraIntensity,
+  ...ORIGINAL_CONFIG,
+  ...(Number.isFinite(settings.tempo) ? {tempo:settings.tempo} : {}),
+  ...(Number.isFinite(settings.ringSpeed) ? {ringSpeed:settings.ringSpeed} : {}),
+  ...(Number.isFinite(settings.ringPause) ? {ringPause:settings.ringPause} : {}),
+  ...(Number.isFinite(settings.cameraIntensity) ? {camZoom:settings.cameraIntensity} : {}),
 };
 const zf = z => 1 + (z - 1) * C.camZoom;
 
@@ -873,7 +917,11 @@ function drawRing(dt) {
     const mid = R + band * 0.42;
     const sp = toScreen(cx + Math.cos(A) * mid, cy + Math.sin(A) * mid);
     if (sp.x < -140 || sp.x > W + 140 || sp.y < -140 || sp.y > H + 140) continue;
-    if (!s.c || (regen > 0 && (s.dirty || rnd() < 0.02))) { renderSlot(s); regen--; }
+    // Upstream beat invalidations bypass the random one-tile refresh budget.
+    const refresh = settings.originalCompositing ?
+      (s.dirty || (regen > 0 && rnd() < 0.02)) :
+      (regen > 0 && (s.dirty || rnd() < 0.02));
+    if (!s.c || refresh) { renderSlot(s); regen--; }
     S.save(); S.rotate(A);
     const hh = s.hpx + 2;
     S.drawImage(s.c, R, -hh / 2, band, hh);
@@ -929,6 +977,7 @@ function drawStage(dt) {
 
   // glow buffer (low-res, blurred later)
   const G = glowC.x;
+  let glowDrawn = false;
   G.setTransform(1, 0, 0, 1, 0, 0); G.clearRect(0, 0, glowC.width, glowC.height);
   camT(G, 1 / GS); G.globalCompositeOperation = 'lighter';
 
@@ -950,19 +999,25 @@ function drawStage(dt) {
   tx.fillStyle = `rgba(0,0,0,${0.05 + env * 0.05})`; tx.fillRect(0, 0, ws, ws);
   tx.globalCompositeOperation = 'source-over';
   tx.save(); tx.translate(R + 2, R + 2); tx.lineCap = 'round';
-  // The 788 runners use only two paints. Submit two paths instead of hundreds
-  // of separate canvas strokes, retaining every runner and its original motion.
-  const runnerPaths = [new Path2D(), new Path2D()];
+  // Individual strokes retain upstream alpha overlap, draw order, and WebKit's
+  // single-segment rasterization. The budget profile can batch the two paints.
+  const runnerPaths = settings.originalCompositing ? null : [new Path2D(), new Path2D()];
   for (let i = 0; i < runners.length; i++) {
     const r = runners[i];
     r.t += dt * C.runnerSpeed * (r.mode === 1 ? r.sp * surge : r.mode === 2 ? r.sp + 1.3 * r.t * r.t : r.sp);
     if (r.t >= 1) { runners[i] = newRunner(false); continue; }
     const p = qpt(r.cv, r.t);
-    const path = runnerPaths[r.b ? 1 : 0];
-    path.moveTo(r.px, r.py); path.lineTo(p.x, p.y);
+    if (runnerPaths) {
+      const path = runnerPaths[r.b ? 1 : 0];
+      path.moveTo(r.px, r.py); path.lineTo(p.x, p.y);
+    } else {
+      tx.strokeStyle = r.b ? `rgba(240,166,198,${Math.min(1, 0.9 * C.runnerBright)})` : `rgba(250,251,255,${Math.min(1, 0.75 * C.runnerBright)})`;
+      tx.lineWidth = (r.b ? 1.3 : 0.9) * C.runnerWidth;
+      tx.beginPath(); tx.moveTo(r.px, r.py); tx.lineTo(p.x, p.y); tx.stroke();
+    }
     r.px = p.x; r.py = p.y;
   }
-  for (let tint = 0; tint < 2; tint++) {
+  if (runnerPaths) for (let tint = 0; tint < 2; tint++) {
     tx.strokeStyle = tint ? `rgba(240,166,198,${Math.min(1, 0.9 * C.runnerBright)})` : `rgba(250,251,255,${Math.min(1, 0.75 * C.runnerBright)})`;
     tx.lineWidth = (tint ? 1.3 : 0.9) * C.runnerWidth;
     tx.stroke(runnerPaths[tint]);
@@ -998,7 +1053,7 @@ function drawStage(dt) {
     const hs = head - (head - tail) * 0.35;
     S.strokeStyle = `rgba(${col},${Math.min(1, fade * C.cometBright)})`; S.lineWidth = 1.7;
     strokeComet(S, c, hs, head);
-    if (c.glow && C.cometGlow > 0) { G.strokeStyle = `rgba(${col},${Math.min(1, 0.5 * fade * C.cometGlow)})`; G.lineWidth = 2.8; strokeComet(G, c, hs, head); }
+    if (c.glow && C.cometGlow > 0) { G.strokeStyle = `rgba(${col},${Math.min(1, 0.5 * fade * C.cometGlow)})`; G.lineWidth = 2.8; strokeComet(G, c, hs, head); glowDrawn = true; }
     G.restore(); S.restore();
   }
   G.restore();
@@ -1028,11 +1083,13 @@ function drawStage(dt) {
 
   // composite soft glow
   S.setTransform(DPR, 0, 0, DPR, 0, 0);
-  S.globalCompositeOperation = 'lighter';
-  if (HAS_FILTER) S.filter = 'blur(6px)';
-  S.globalAlpha = Math.min(1, 0.9 * C.glow);
-  S.drawImage(glowC, 0, 0, glowC.width * GS, glowC.height * GS);
-  if (HAS_FILTER) S.filter = 'none';
+  if (glowDrawn) {
+    S.globalCompositeOperation = 'lighter';
+    if (HAS_FILTER) S.filter = 'blur(6px)';
+    S.globalAlpha = Math.min(1, 0.9 * C.glow);
+    S.drawImage(glowC, 0, 0, glowC.width * GS, glowC.height * GS);
+    if (HAS_FILTER) S.filter = 'none';
+  }
   S.globalAlpha = 1; S.globalCompositeOperation = 'source-over';
 
   drawBokeh(dt);
@@ -1085,23 +1142,6 @@ kpiTick(); runtime.every(kpiTick, 2600);
 /* =========================================================
    PANELS
    ========================================================= */
-// --- investigation feed ---
-const ACTS = ['extract governing equation', 'prepare clean checkout', 'load shared reference scene', 'implement independent method',
-  'review numerical stability', 'check mass conservation', 'record boundary conditions', 'attach source page links',
-  'compare reference outputs', 'retain missing details', 'package clean checkout', 'validate sample buffer',
-  'diff against reference scene', 'resolve ambiguous notation', 'reproduce figure 3', 'sweep timestep sensitivity'];
-const VERBS = ['build', 'check', 'read', 'qa', 'build', 'check'];
-const feed = document.getElementById('feed');
-let feedN = 37;
-function feedPush() {
-  const v = pick(VERBS), d = document.createElement('div');
-  d.innerHTML = `<span class="n">${String(feedN++).padStart(3, '0')}</span><span class="vb ${v}">${v}</span>${pick(ACTS)}`;
-  feed.appendChild(d);
-  while (feed.children.length > 14) feed.removeChild(feed.firstChild);
-}
-for (let i = 0; i < 12; i++) feedPush();
-runtime.every(feedPush, 650);
-
 // --- method workspace (typing) ---
 const CODE = [['papers', 'load_collection', '()'], ['eqs', 'extract_equations', '(papers)'], ['inputs', 'shared_scene', '()'],
   ['state', 'method.step', '(inputs)'], ['', 'check_mass', '(state, reference)'], ['', 'check_stability', '(state)'],
@@ -1149,6 +1189,42 @@ function renderRoutes() {
 }
 runtime.every(() => { const i = (rnd() * ROUTES.length) | 0; rState[i] = (rState[i] + 1) % 4; renderRoutes(); }, 500);
 renderRoutes();
+
+// --- agents ---
+const ROLES = ['read', 'build', 'review', 'qa'];
+const AG = Array.from({ length: 12 }, (_, i) => ({ id: String(i + 1).padStart(2, '0'), role: ROLES[i % 4], p: rnd() * 8, sp: rr(0.6, 2), st: 'working' }));
+const agEl = document.getElementById('agents');
+const ROLE_COL = { read: '#98e0cf', build: '#f0a6c6', review: '#d7dae0', qa: '#f0a6c6' };
+agEl.innerHTML = AG.map(a => `<div class="ag"><span class="id">${a.id}</span><span class="rl">${a.role}</span><span class="cells">${'<i></i>'.repeat(6)}</span><span class="st"></span></div>`).join('');
+const agRows = [...agEl.children].map(row => ({
+  cells: [...row.children[2].children], status: row.children[3], done: null, state: null,
+}));
+let agentPanelUpdates = 0;
+function renderAgentRow(a, i) {
+  const row = agRows[i], done = Math.floor(a.p);
+  const state = a.p < 0.6 ? 'dispatch' : a.p > 6 ? 'idle' : 'working';
+  let changed = false;
+  if (row.done !== done) {
+    row.cells.forEach((cell, k) => {
+      cell.style.background = k < done ? ROLE_COL[a.role] : k === done ? '#5a5e66' : '#1d1f24';
+    });
+    row.done = done; changed = true;
+  }
+  if (row.state !== state) {
+    row.status.textContent = state;
+    row.status.className = 'st' + (state === 'working' ? ' w' : '');
+    row.state = state; changed = true;
+  }
+  if (changed) agentPanelUpdates++;
+}
+AG.forEach(renderAgentRow);
+function agentsTick(dt) {
+  AG.forEach((a, i) => {
+    a.p += a.sp * dt;
+    if (a.p > 9) { a.p = 0; a.sp = rr(0.6, 2); }
+    renderAgentRow(a, i);
+  });
+}
 
 // --- canvases ---
 const cAdv = document.getElementById('cAdv'), cDiff = document.getElementById('cDiff'), cVal = document.getElementById('cVal'), cIdx = document.getElementById('cIdx');
@@ -1265,27 +1341,35 @@ const frameCosts = new Float32Array(240), frameGaps = new Float32Array(240);
 let sampleCount = 0, overBudgetFrames = 0;
 let layoutBuilds = 0, resizeSkips = 0, lastLayoutAt = 0;
 let fontsSettled = !document.fonts, warmupDrawing = false, warmupFrames = 0;
-let warmupStarted = 0, warmupMS = 0, prepared = !nativeDriver;
+let warmupStarted = 0, warmupMS = 0, prepared = !window.HALOVEIL_NATIVE;
 function percentile(buffer, fraction) {
   const values = Array.from(buffer.subarray(0, Math.min(sampleCount, buffer.length))).sort((a,b) => a-b);
   return values.length ? values[Math.min(values.length-1, Math.ceil(values.length*fraction)-1)] : 0;
 }
-const frameInterval = 1000 / settings.fps;
-const panelInterval = 1000 / (settings.panelFPS || settings.fps);
+const frameInterval = settings.fps > 0 ? 1000 / settings.fps : 0;
+const frameBudget = frameInterval || 1000 / 60;
+const panelInterval = settings.panelFPS > 0 ? 1000 / settings.panelFPS : 0;
 function renderFrame(now) {
   callbacks++;
   if (!runtime.active || !ready) return;
-  if (!nativeDriver && now + 1 < nextFrameAt) return;
+  if (!nativeDriver && frameInterval && now + 1 < nextFrameAt) return;
   const gap = Math.max(0, now - last);
   const dt = Math.min(0.05, gap / 1000);
   last = now; T += dt;
-  nextFrameAt += frameInterval;
-  if (nextFrameAt < now - 1) nextFrameAt = now + frameInterval;
+  if (frameInterval) {
+    nextFrameAt += frameInterval;
+    if (nextFrameAt < now - 1) nextFrameAt = now + frameInterval;
+  }
   const t0 = performance.now();
   drawStage(dt);
   const t1 = performance.now();
   stageMS = stageMS ? stageMS * 0.95 + (t1 - t0) * 0.05 : t1 - t0;
-  if (now + 1 >= nextPanelAt) {
+  if (!panelInterval) {
+    drawAdv(dt); drawDiff(); drawVal(); drawIdx();
+    for (let index = 0; index < 4; index++) panelUpdates[index]++;
+    const cost = performance.now() - t1;
+    panelMS = panelMS ? panelMS * 0.95 + cost * 0.05 : cost;
+  } else if (now + 1 >= nextPanelAt) {
     // Spread four panel redraws across successive frames instead of stacking
     // their cost on one frame every 50 ms. Drop backlog rather than catch up.
     const step = panelInterval / 4;
@@ -1299,16 +1383,17 @@ function renderFrame(now) {
       else if (index === 2) { drawVal(); }
       else drawIdx();
       nextPanelAt += step; updates++;
-    } while (now + 1 >= nextPanelAt && updates < 2 && performance.now()-t0 < frameInterval*0.65);
+    } while (now + 1 >= nextPanelAt && updates < 2 && performance.now()-t0 < frameBudget*0.65);
     if (nextPanelAt < now-step) nextPanelAt = now+step;
     const cost = performance.now() - t1;
     panelMS = panelMS ? panelMS * 0.95 + cost * 0.05 : cost;
   }
+  agentsTick(dt);
   const cost = performance.now() - t0;
   maxFrameMS = Math.max(maxFrameMS, cost);
   frameCosts[sampleCount % frameCosts.length] = cost;
   frameGaps[sampleCount % frameGaps.length] = gap;
-  sampleCount++; if (cost > frameInterval) overBudgetFrames++;
+  sampleCount++; if (cost > frameBudget) overBudgetFrames++;
   frames++; statsFrames++;
   if (now - lastStats >= 2000) {
     measuredFPS = statsFrames * 1000 / (now - lastStats);
@@ -1343,7 +1428,7 @@ function resizeAll() {
   if (ready && Math.abs(W-r.width) < 0.5 && Math.abs(H-r.height) < 0.5 && Math.abs(DPR-ratio) < 0.001) {
     resizeSkips++; return;
   }
-  DPR = ratio; ready = false; prepared = !nativeDriver;
+  DPR = ratio; ready = false; prepared = !window.HALOVEIL_NATIVE;
   warmupFrames = 0; warmupStarted = 0;
   resizeStage(); resizePanels(); ready = true;
   layoutBuilds++; lastLayoutAt = performance.now();
@@ -1403,7 +1488,11 @@ window.HALOVEILHost = Object.freeze({
   dispose() { resizeObserver.disconnect(); window.clearTimeout(resizeTask); runtime.dispose(); ready = false; },
   tick() { if (nativeDriver) renderFrame(performance.now()); },
   getState() {
-    return {webRevision:release.version, build:release.build, ready, active:runtime.active, frames, time:T, fps:settings.fps,
+    return {webRevision:release.version, build:release.build, ready, active:runtime.active, frames, time:T, fps:nativeDriver ? 60 : settings.fps || 'display',
+      preset:settings.preset, config:{...C},
+      qualityProfile:settings.qualityProfile, drawCostReferenceMS:frameBudget,
+      agentPanel:{rows:AG.length, updates:agentPanelUpdates},
+      motion:{tempo:C.tempo, ringSpeed:C.ringSpeed, ringPause:C.ringPause, cameraIntensity:C.camZoom},
       drawP95MS:percentile(frameCosts,0.95), gapP95MS:percentile(frameGaps,0.95), overBudgetFrames,
       slotBuildCount, slotBuildMS, layoutBuilds, resizeSkips, prepared, warmupFrames, warmupMS, panelUpdates:Array.from(panelUpdates), cameraShot:shotI, cameraPhase:camPhase,
       driver:nativeDriver ? 'ScreenSaverView' : 'requestAnimationFrame',

@@ -13,11 +13,11 @@ release=json.loads((root/'version.json').read_text())
 web=root/'web'
 base=hashlib.sha256()
 for f in sorted(web.iterdir()):
-    if not f.is_file() or f.name=='version.js':continue
+    if not f.is_file() or f.name in {'version.js','.DS_Store'} or f.name.startswith('._'):continue
     base.update(f.name.encode()+b'\0'+f.read_bytes())
 release['assetDigest']=base.hexdigest()
 (web/'version.js').write_text('window.HALOVEIL_RELEASE=Object.freeze('+json.dumps(release,separators=(',',':'))+');\n')
-manifest={'web/'+f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(web.iterdir()) if f.is_file()}
+manifest={'web/'+f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(web.iterdir()) if f.is_file() and f.name!='.DS_Store' and not f.name.startswith('._')}
 data=json.dumps(manifest,sort_keys=True,separators=(',',':')).encode()
 (root/'build').mkdir(exist_ok=True)
 (root/'build/manifest.json').write_bytes(data)
@@ -62,7 +62,8 @@ common = {'CFBundleDevelopmentRegion':'en','CFBundleInfoDictionaryVersion':'6.0'
 saver = dict(common, CFBundleIdentifier='dev.haloveil.screensaver',
              CFBundleName='HaloVeil', CFBundleDisplayName='HaloVeil',
              CFBundleExecutable='HaloVeil', CFBundlePackageType='BNDL',
-             NSPrincipalClass='HaloVeilView', SSENeedsAnimationTimer=True)
+             NSPrincipalClass='HaloVeilView', SSENeedsAnimationTimer=True,
+             HaloVeilOriginalVisuals=True)
 preview = dict(common, CFBundleIdentifier='dev.haloveil.preview',
                CFBundleName='HaloVeil Preview', CFBundleDisplayName='HaloVeil Preview',
                CFBundleExecutable='HaloVeilPreview', CFBundlePackageType='APPL',

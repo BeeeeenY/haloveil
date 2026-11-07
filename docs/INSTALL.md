@@ -4,7 +4,9 @@
 
 ## Download
 
-Download **[HaloVeil-1.0.0.zip](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.0.0.zip)** from this repository. If the project also has a GitHub Release, its asset with the same name is the installable package. GitHub's automatically generated “Source code” ZIP contains the source project instead.
+Download **[HaloVeil-1.1.0.zip](https://raw.githubusercontent.com/BeeeeenY/haloveil/main/downloads/HaloVeil-1.1.0.zip)** from this repository. If the project also has a GitHub Release, its asset with the same name is the installable package. GitHub's automatically generated “Source code” ZIP contains the source project instead.
+
+Version **1.1.0 / build 2** uses the confirmed original preset A with 45 runners and all 56 scene parameters. The headings are **BEN'S CONTROL ROOM** / **IDEAS IN MOTION**. Codex usage is in the first panel; the seventh panel retains the demo **12 AGENTS / DISPATCH**. The included [Codex file bridge](CODEX-STATUS.md) is optional and requires separate account-collection setup.
 
 Unzip the package with Archive Utility. Keep the `.saver` bundle intact; do not open its Contents folder to install individual files. Installing the downloaded saver does not require Xcode, Python, a web server, or Wallpaper Engine.
 

@@ -44,8 +44,9 @@ static NSDictionary *ReadAgentStatus(NSURL *url) {
         [limits addObject:@{@"id":bucket[@"id"],@"name":bucket[@"name"],@"windows":windows}];
     }
     NSDictionary *reset=[raw[@"fullReset"] isKindOfClass:NSDictionary.class]?raw[@"fullReset"]:@{};
-    id count=reset[@"availableCount"];
+    id count=reset[@"availableCount"],interval=raw[@"refreshIntervalSecs"];
     return @{@"state":@"ok",@"fetchedAt":raw[@"fetchedAt"],@"limits":limits,
+        @"refreshIntervalSecs":StatusNumber(interval)&&[interval doubleValue]>=60&&[interval doubleValue]<=86400?interval:NSNull.null,
         @"fullReset":@{@"availableCount":StatusNumber(count)&&[count doubleValue]>=0&&floor([count doubleValue])==[count doubleValue]?count:NSNull.null,
             @"expiresAt":StatusTime(reset[@"expiresAt"]),@"detailsKnown":@([reset[@"detailsKnown"] isEqual:@YES])}};
 }

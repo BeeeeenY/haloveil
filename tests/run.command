@@ -1,6 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 TASK_ROOT="${0:A:h:h}"
+TASK_BUNDLE="${1:-$TASK_ROOT/build/HaloVeil.saver}"
 TASK_APP="$TASK_ROOT/.local/tests/lifecycle/LifecycleQA.app"
 TASK_REPORT="$TASK_ROOT/.local/diagnostics/lifecycle-regression-repro-$(date +%Y%m%d-%H%M%S).json"
 mkdir -p "$TASK_APP/Contents/MacOS" "$TASK_ROOT/.local/diagnostics"
@@ -8,11 +9,11 @@ xcrun clang -fobjc-arc -O2 -Wall -Wextra -Wno-unused-parameter -Werror -framewor
   "$TASK_ROOT/tests/LeaseProbe.m" -o "$TASK_APP/Contents/MacOS/LeaseProbe"
 xcrun clang -fobjc-arc -O2 -Wall -Wextra -Wno-unused-parameter -Werror -framework Cocoa -framework ScreenSaver -framework WebKit \
   "$TASK_ROOT/tests/LifecycleQA.m" -o "$TASK_APP/Contents/MacOS/QA"
-python3 - "$TASK_ROOT" "$TASK_APP" "$TASK_REPORT" <<'PY'
+python3 - "$TASK_ROOT" "$TASK_APP" "$TASK_REPORT" "$TASK_BUNDLE" <<'PY'
 from pathlib import Path
 import sys,plistlib
-root,app,report=map(Path,sys.argv[1:])
-info={'CFBundleIdentifier':'dev.haloveil.lifecycleqa','CFBundleName':'HALOVEIL LifecycleQA','CFBundleExecutable':'QA','CFBundlePackageType':'APPL','NSHighResolutionCapable':True,'SaverPath':str(root/'build/HaloVeil.saver'),'ReportPath':str(report)}
+root,app,report,bundle=map(Path,sys.argv[1:])
+info={'CFBundleIdentifier':'dev.haloveil.lifecycleqa','CFBundleName':'HALOVEIL LifecycleQA','CFBundleExecutable':'QA','CFBundlePackageType':'APPL','NSHighResolutionCapable':True,'SaverPath':str(bundle.resolve()),'ReportPath':str(report)}
 (app/'Contents/Info.plist').write_bytes(plistlib.dumps(info))
 PY
 codesign --force --sign - --timestamp=none "$TASK_APP"

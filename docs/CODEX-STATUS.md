@@ -1,8 +1,10 @@
 # Codex account status / 用量接入
 
-Source builds include an optional Codex account panel. The published 1.0.0 download predates this feature. Other panels and header counters remain a visual demo; the Codex panel shows account-wide limits, not the current chat's token count or agent progress.
+HaloVeil 1.1.0 and the current source include the optional Codex account panel and native file bridge. Account collection requires separate opt-in setup. Other panels and header counters remain a visual demo; the Codex panel shows account-wide limits, not the current chat's token count or agent progress.
 
-源码构建版支持可选的 Codex 账户用量面板；已发布的 1.0.0 下载包尚未包含此功能。其他面板及顶部计数仍为视觉演示。Codex 面板显示账户共享额度，不代表当前聊天的 token 数或任务进度。
+HaloVeil 1.1.0 安装包及当前源码已包含可选的 Codex 账户用量面板和原生文件桥接，账户采集需要另行主动启用。其他面板及顶部计数仍为视觉演示。Codex 面板显示账户共享额度，不代表当前聊天的 token 数或任务进度。
+
+The Codex panel occupies row 1, column 1; row 2, column 3 retains `12 AGENTS / DISPATCH` as a visual demo. Codex 用量位于第一行第一格；第二行第三格保留 `12 AGENTS / DISPATCH`，其中的 12 个 agent 仍为视觉演示。
 
 ## Enable / 启用
 
@@ -14,21 +16,21 @@ Account collection is opt-in and independent of the screen saver and Preview app
 python3 tools/codex-status.py
 ```
 
-Open an existing native Preview app to display the snapshot. A plain browser has no native file bridge and displays `NO DATA`. Native builds are a separate, explicitly requested step.
+Open `HaloVeil Preview.app` from the 1.1.0 download to display the snapshot without installing the saver. A plain browser has no native file bridge and displays `NO DATA`. Rebuilding native products from source is a separate, explicitly requested step.
 
-用已有的原生 Preview App 显示快照；普通浏览器没有原生文件桥接，该面板显示 `NO DATA`。重新构建原生程序是另行按需执行的步骤。
+打开 1.1.0 下载包内的 `HaloVeil Preview.app`，无需安装屏保即可显示快照；普通浏览器没有原生文件桥接，该面板显示 `NO DATA`。从源码重新构建原生程序是另行按需执行的步骤。
 
 Only if you want continuous collection while logged in, explicitly install the background service:
 
-只有希望登录期间持续采集时，才运行下面的后台安装命令。即使没有打开屏保或 Preview，它也会每 5 分钟刷新：
+只有希望登录期间持续采集时，才运行下面的后台安装命令。即使没有打开屏保或 Preview，它也会每 1 小时刷新：
 
 ```sh
-python3 tools/codex-status.py --install
+python3 tools/codex-status.py --install --interval 3600
 ```
 
-`--install` verifies a real account read, copies the collector outside the repository, and installs a per-user LaunchAgent. It refreshes immediately and every 5 minutes after login. It uses the existing Codex sign-in; there is no API-key setup or model inference. If auto-detection fails, add `--codex /absolute/path/to/codex`. Re-run installation after relocating the Codex app or Python interpreter.
+`--install` verifies a real account read, copies the collector outside the repository, and installs a per-user LaunchAgent. It refreshes immediately and every hour after login. It uses the existing Codex sign-in; there is no API-key setup or model inference. If auto-detection fails, add `--codex /absolute/path/to/codex`. Re-run installation after relocating the Codex app or Python interpreter.
 
-`--install` 会先验证账户读取，将采集器复制到源码目录外，再启用用户级 LaunchAgent。登录后立即读取，并每 5 分钟刷新。它沿用本机 Codex 登录，不需要 API key，也不会发起模型任务。找不到可执行文件时，可加 `--codex /absolute/path/to/codex`。移动 Codex App 或 Python 后，重新运行安装命令即可。
+`--install` 会先验证账户读取，将采集器复制到源码目录外，再启用用户级 LaunchAgent。登录后立即读取，并每 1 小时刷新。它沿用本机 Codex 登录，不需要 API key，也不会发起模型任务。找不到可执行文件时，可加 `--codex /absolute/path/to/codex`。移动 Codex App 或 Python 后，重新运行安装命令即可。
 
 Fixed paths / 固定位置：
 
@@ -62,7 +64,7 @@ Uninstall leaves the last snapshot and log in place; delete them to remove saved
 - `RENEWS`: next automatic quota reset time, from `resetsAt`. It is independent of earned reset credits.
 - `FULL RESET · 3 AVAILABLE`: server-reported available reset count.
 - `NEXT KNOWN EXPIRY`: earliest future expiry among the returned available `codexRateLimits` reset details. This is the next known **券到期时间**, not the most recently granted reset or automatic renewal. The server may cap detail rows, so this is not a guarantee about undisclosed credits. No reset is ever consumed.
-- `SYNCED`: snapshot is at most 15 minutes old; this is periodic telemetry. `STALE` means it is older. Missing, invalid, unreadable or future-dated snapshots show `NO DATA`. Unknown fields remain unknown. After a reported renewal/expiry passes, the display waits for fresh data instead of assuming a new balance.
+- `SYNCED`: snapshot is within the configured refresh interval plus a 15-minute grace period (75 minutes for the hourly collector). Legacy snapshots without an interval use 15 minutes. `STALE` means it is older. Missing, invalid, unreadable or future-dated snapshots show `NO DATA`. Unknown fields remain unknown. After a reported renewal/expiry passes, the display waits for fresh data instead of assuming a new balance.
 - Dates use the Mac's local timezone, shown in the caption. Singapore is `Asia/Singapore` (UTC+8).
 
 ## Data flow and boundaries

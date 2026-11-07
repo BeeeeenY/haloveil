@@ -31,7 +31,7 @@ static void Log(NSString *event,NSDictionary *fields) {
     NSMutableDictionary *record=[fields mutableCopy]; record[@"event"]=event; record[@"nativeRevision"]=HALOVEIL_VERSION;
     if([event isEqualToString:@"frame"]){
         // Keep startup samples below Unified Logging's message size limit.
-        NSSet *keys=[NSSet setWithArray:@[@"event",@"nativeRevision",@"webRevision",@"build",@"instanceID",@"sessionID",@"screenID",@"running",@"pageReady",@"hasWebView",@"hasLease",@"activeInstancesInProcess",@"activeInstancesForDisplay",@"frames",@"measuredFPS",@"drawP95MS",@"gapP95MS",@"maxFrameMS",@"slotBuildCount",@"layoutBuilds",@"resizeSkips",@"warmupFrames",@"warmupMS",@"errors"]];
+        NSSet *keys=[NSSet setWithArray:@[@"event",@"nativeRevision",@"webRevision",@"build",@"instanceID",@"sessionID",@"screenID",@"running",@"pageReady",@"hasWebView",@"hasLease",@"activeInstancesInProcess",@"activeInstancesForDisplay",@"frames",@"measuredFPS",@"drawP95MS",@"gapP95MS",@"maxFrameMS",@"slotBuildCount",@"layoutBuilds",@"resizeSkips",@"warmupFrames",@"warmupMS",@"errors",@"preset",@"width",@"height",@"pixelRatio",@"stagePixels"]];
         for(NSString *key in record.allKeys)if(![keys containsObject:key])[record removeObjectForKey:key];
     }
     NSData *data=[NSJSONSerialization dataWithJSONObject:record options:0 error:nil];
@@ -50,6 +50,7 @@ static void Log(NSString *event,NSDictionary *fields) {
 @property(nonatomic,copy) NSString *lastError;
 @property(nonatomic) BOOL running,pageReady,framePending,seenVisible,sleeping;
 @property(nonatomic) BOOL preparing,presented;
+@property(nonatomic) BOOL usesOriginalVisuals;
 @property(nonatomic) NSTimeInterval startupAt,startupReadyMS;
 @property(nonatomic) NSInteger leaseFD;
 @property(nonatomic) NSUInteger generation;
@@ -65,6 +66,8 @@ static void Log(NSString *event,NSDictionary *fields) {
 - (instancetype)initWithCoder:(NSCoder *)coder { self=[super initWithCoder:coder];if(self)[self prepare];return self; }
 - (void)prepare {
     self.leaseFD=-1; self.instanceID=NSUUID.UUID.UUIDString;
+    self.usesOriginalVisuals=[NSBundle.mainBundle.bundleIdentifier isEqualToString:@"dev.haloveil.preview"]||
+        [[[NSBundle bundleForClass:HaloVeilView.class] objectForInfoDictionaryKey:@"HaloVeilOriginalVisuals"] boolValue];
     self.animationTimeInterval=self.isPreview?1.0:1.0/60.0;
     self.resources=[NSBundle bundleForClass:HaloVeilView.class].resourceURL;
     self.wantsLayer=YES;self.layer.backgroundColor=[NSColor colorWithWhite:0.032 alpha:1].CGColor;
@@ -312,7 +315,7 @@ static void Log(NSString *event,NSDictionary *fields) {
 - (void)loadAnimation {
     WKWebViewConfiguration *config=[[WKWebViewConfiguration alloc] init];config.websiteDataStore=WKWebsiteDataStore.nonPersistentDataStore;
     config.preferences.javaScriptCanOpenWindowsAutomatically=NO;config.mediaTypesRequiringUserActionForPlayback=WKAudiovisualMediaTypeAll;
-    NSString *script=[NSString stringWithFormat:@"window.HALOVEIL_NATIVE=true;window.HALOVEIL_NATIVE_FRAME_DRIVER=true;window.HALOVEIL_NATIVE_RELEASE={version:'%@',build:%d,assetDigest:'%@'};",HALOVEIL_VERSION,HALOVEIL_BUILD,HALOVEIL_ASSET_DIGEST];
+    NSString *script=[NSString stringWithFormat:@"window.HALOVEIL_NATIVE=true;window.HALOVEIL_PREVIEW=%@;window.HALOVEIL_NATIVE_FRAME_DRIVER=true;window.HALOVEIL_NATIVE_RELEASE={version:'%@',build:%d,assetDigest:'%@'};",self.usesOriginalVisuals?@"true":@"false",HALOVEIL_VERSION,HALOVEIL_BUILD,HALOVEIL_ASSET_DIGEST];
     [config.userContentController addUserScript:[[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]];
     WKWebView *view=[[WKWebView alloc] initWithFrame:self.bounds configuration:config];view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
     view.navigationDelegate=self;view.pageZoom=MIN(1.0,MAX(0.1,self.bounds.size.width/1440.0));view.underPageBackgroundColor=[NSColor colorWithWhite:0.032 alpha:1];

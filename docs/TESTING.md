@@ -1,6 +1,40 @@
 # Testing and validation
 
-Validation date: 2026-11-06. Host: macOS Sonoma 14.4.1. Build: HaloVeil 1.0.0 / build 1, Apple Silicon + Intel universal products.
+Release validation: 2026-11-07. Host: macOS Sonoma 14.4.1. Build: HaloVeil 1.1.0 / build 2, Apple Silicon + Intel universal products.
+
+## Release 1.1.0
+
+- All 56 confirmed scene values match the original preset A, including 45 runners.
+- Current title/subtitle and all eight panel positions are preserved; ten layout/demo-agent checks passed.
+- Seven offline collector contract tests, twelve native snapshot-reader checks, and nine quota-display checks passed. Collector service actions were mocked in a temporary home; no real service was installed or restarted.
+- Eight lifecycle cycles / 88 checks passed, ending with zero sessions and zero web views.
+- Both the saver and bundled Preview select the approved original-quality profile. Startup completes 37 warmup frames with one layout build.
+- The final ZIP was checked for CRC, source/resource identity, executable permissions, version metadata and universal architectures. Native macOS extraction preserved both product signatures; the extracted saver was tested independently.
+- The README image and settings thumbnail use the current layout with synthetic account data, not a personal account snapshot.
+
+The records below describe earlier development checks and their limitations.
+
+## Current Preview configuration
+
+All 56 scene parameters match the user's exported HALOFLUX preset A, including
+45 runners. Before the panel relocation, three independent visible startup processes at the actual Preview
+window dimensions (1600 × 932 points, scale 2) passed configuration and pacing
+checks. Across the 0–1, 1–3, 3–5, and 5–10 second intervals, measured drawing
+callbacks were 59.5–61 per second, the maximum interval was 18 ms, and no interval
+exceeded 33 ms. Each start completed 37 warmup frames with one layout build.
+These measure drawing callbacks, not physical display presentation timestamps.
+
+The updated layout passed 10 panel/agent checks and 7 quota-display checks with
+a synthetic private snapshot: Codex at row 1/column 1 and twelve animated demo
+agents at row 2/column 3. The standalone Preview's opening log recorded about
+60 drawing callbacks per second with drawing P95 about 2 ms. Instrumented QA
+runs also recorded transient 48–55 callback FPS during the first few seconds;
+those runs did not meet the strict 55 FPS pacing gate, so functional success
+must not be interpreted as a universal smoothness guarantee. The scene's full
+56-parameter configuration and 45-runner count remained unchanged.
+
+`downloads/HaloVeil-1.1.0.zip` is the current release. The 1.0.0 ZIP and
+`oldVersionBackup/` remain unchanged historical builds.
 
 ## Automated lifecycle checks
 
